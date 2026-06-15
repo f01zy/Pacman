@@ -14,13 +14,8 @@ void initialize_app_context(struct AppContext *app) {
   load_level(app, app->level_number);
   SDL_Texture *tileset = IMG_LoadTexture(app->renderer, TILESET_PATH);
   SDL_SetTextureScaleMode(tileset, SDL_SCALEMODE_NEAREST);
+  initialize_pacman(&app->pacman);
   app->tileset = tileset;
-  // TODO: пакман неправильно смещается
-  app->pacman.pos = (struct fVec2){
-    TILE_SIZE * TILE_SCALE * PACMAN_START_X - TILE_SIZE,
-    TILE_SIZE * TILE_SCALE * PACMAN_START_Y - TILE_SIZE,
-  };
-  app->pacman.dir = DIRECTION_LEFT;
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
@@ -65,7 +60,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_RenderTexture(app->renderer, app->tileset, &srcmap, &dstmap);
   render_level(app->level, app->renderer, app->tileset);
   render_pacman(&app->pacman, app->renderer, app->tileset);
-  move_pacman(&app->pacman, app->level, &app->score, deltatime);
+  move_pacman(app->level, &app->pacman, deltatime);
 
   SDL_RenderPresent(app->renderer);
   return SDL_APP_CONTINUE;

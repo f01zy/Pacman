@@ -6,18 +6,35 @@
 #include "tiles.h"
 #include "types.h"
 
-void change_pacman_direction(struct Pacman *pacman, enum Direction dir) { pacman->dir = dir; }
+void align_pacman_coordinates(struct Pacman *pacman) {
+  struct Vec2 tile_pos = get_tile_from_pos(pacman->pos);
+  pacman->pos.x = TILE_SIZE * TILE_SCALE * tile_pos.x;
+  pacman->pos.y = TILE_SIZE * TILE_SCALE * tile_pos.y;
+}
+
+void initialize_pacman(struct Pacman *pacman) {
+  pacman->pos = (struct fVec2){
+    TILE_SIZE * TILE_SCALE * PACMAN_START_X,
+    TILE_SIZE * TILE_SCALE * PACMAN_START_Y,
+  };
+  pacman->curr_dir = pacman->desired_dir = DIRECTION_LEFT;
+}
+
+void change_pacman_direction(struct Pacman *pacman, enum Direction dir) {
+  align_pacman_coordinates(pacman);
+  pacman->curr_dir = dir;
+}
 
 void render_pacman(struct Pacman *pacman, SDL_Renderer *renderer, SDL_Texture *tileset) {
   struct Tile tile;
   enum TileType tile_type;
-  if (pacman->dir == DIRECTION_RIGHT) {
+  if (pacman->curr_dir == DIRECTION_RIGHT) {
     tile_type = TILE_PACMAN_RIGHT_1;
-  } else if (pacman->dir == DIRECTION_LEFT) {
+  } else if (pacman->curr_dir == DIRECTION_LEFT) {
     tile_type = TILE_PACMAN_LEFT_1;
-  } else if (pacman->dir == DIRECTION_UP) {
+  } else if (pacman->curr_dir == DIRECTION_UP) {
     tile_type = TILE_PACMAN_UP_1;
-  } else if (pacman->dir == DIRECTION_DOWN) {
+  } else if (pacman->curr_dir == DIRECTION_DOWN) {
     tile_type = TILE_PACMAN_DOWN_1;
   }
   tile_type += pacman->texture_state;
@@ -34,8 +51,8 @@ void render_pacman(struct Pacman *pacman, SDL_Renderer *renderer, SDL_Texture *t
     SDL_Quit();
   }
   SDL_FRect dstrect = {
-    pacman->pos.x,
-    pacman->pos.y,
+    pacman->pos.x - TILE_SIZE,
+    pacman->pos.y - TILE_SIZE,
     TILE_SIZE * TILE_SCALE * tile.size.x,
     TILE_SIZE * TILE_SCALE * tile.size.y,
   };
@@ -48,21 +65,16 @@ void render_pacman(struct Pacman *pacman, SDL_Renderer *renderer, SDL_Texture *t
   SDL_RenderTexture(renderer, tileset, &srcrect, &dstrect);
 }
 
-void move_pacman(struct Pacman *pacman, enum TileType level[LEVEL_HEIGHT][LEVEL_WIDTH], int *score, float deltatime) {
-  struct Vec2 dir = get_vec_dir(pacman->dir);
-  struct fVec2 pos = {
-    pacman->pos.x + dir.x * PACMAN_SPEED * deltatime,
-    pacman->pos.y + dir.y * PACMAN_SPEED * deltatime,
+void move_pacman(enum TileType level[LEVEL_HEIGHT][LEVEL_WIDTH], struct Pacman *pacman, float deltatime) {
+  struct Vec2 translated_direction = get_vec_dir(pacman->curr_dir);
+  struct fVec2 new_pos = {
+    pacman->pos.x + translated_direction.x * PACMAN_SPEED * deltatime,
+    pacman->pos.y + translated_direction.y * PACMAN_SPEED * deltatime,
   };
-  struct Vec2 tile_pos = get_tile_from_pos(pos);
-  if (is_collision(level, pos)) {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Collision: (%f, %f)\n", pos.x, pos.y);
+  if (is_collision(level, new_pos, pacman->curr_dir)) {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Collision: (%f, %f)\n", pacman->pos.x, pacman->pos.y);
+    align_pacman_coordinates(pacman);
     return;
   }
-  enum TileType tile_type = level[tile_pos.y][tile_pos.x];
-  pacman->pos = pos;
-  if (tile_type == TILE_DOT) {
-    *score += DOT_SCORE;
-    level[tile_pos.y][tile_pos.x] = TILE_EMPTY;
-  }
+  pacman->pos = new_pos;
 }

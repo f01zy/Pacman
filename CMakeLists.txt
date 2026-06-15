@@ -17,4 +17,5 @@ add_executable(pacman ${SOURCE})
 target_link_libraries(pacman PRIVATE
   SDL3_image::SDL3_image
   SDL3::SDL3
+  m
 )

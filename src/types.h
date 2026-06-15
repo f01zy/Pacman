@@ -55,7 +55,8 @@ struct Tile {
 
 struct Pacman {
   struct fVec2 pos;
-  enum Direction dir;
+  enum Direction curr_dir;
+  enum Direction desired_dir;
   int texture_state;
 };
 
