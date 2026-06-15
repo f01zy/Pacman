@@ -22,10 +22,10 @@ void render_level(enum TileType level[LEVEL_HEIGHT][LEVEL_WIDTH], SDL_Renderer *
       }
       if (!is_found) continue;
       SDL_FRect dstrect = {
-        TILE_SIZE * TILE_SCALE * j,
-        TILE_SIZE * TILE_SCALE * i,
-        TILE_SIZE * TILE_SCALE * tile.size.x,
-        TILE_SIZE * TILE_SCALE * tile.size.y,
+        SCALED_TILE_SIZE * j,
+        SCALED_TILE_SIZE * i,
+        SCALED_TILE_SIZE * tile.size.x,
+        SCALED_TILE_SIZE * tile.size.y,
       };
       SDL_FRect srcrect = {
         TILE_SIZE * tile.offset.x,

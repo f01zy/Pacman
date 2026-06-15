@@ -8,16 +8,16 @@ struct Vec2 get_vec_dir(enum Direction dir) {
 
 struct Vec2 get_tile_from_pos(struct fVec2 pos) {
   return (struct Vec2){
-    pos.x / (TILE_SIZE * TILE_SCALE),
-    pos.y / (TILE_SIZE * TILE_SCALE),
+    pos.x / SCALED_TILE_SIZE,
+    pos.y / SCALED_TILE_SIZE,
   };
 }
 
 bool is_collision(enum TileType level[LEVEL_HEIGHT][LEVEL_WIDTH], struct fVec2 pos, enum Direction dir) {
   // TODO: пофиксить вычисление
   if (dir == DIRECTION_RIGHT || dir == DIRECTION_DOWN) {
-    pos.x += TILE_SIZE * TILE_SCALE - 2;
-    pos.y += TILE_SIZE * TILE_SCALE - 2;
+    pos.x += SCALED_TILE_SIZE - 2;
+    pos.y += SCALED_TILE_SIZE - 2;
   }
   struct Vec2 tile_pos = get_tile_from_pos(pos);
   if (level[tile_pos.y][tile_pos.x] == TILE_WALL) return true;

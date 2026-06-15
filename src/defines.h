@@ -2,22 +2,24 @@
 #define DEFINES_INCLUDED
 
 // Game constans
-#define TILE_SCALE     2
-#define TILE_SIZE      8
-#define TITLE          "Pacman"
-#define TILESET_PATH   "/home/aminov/Documents/Programming/Pacman/resources/tileset.png"
-#define PACMAN_SPEED   120
-#define PACMAN_START_X 13
-#define PACMAN_START_Y 17
-#define DOT_SCORE      10
+#define TILE_SIZE                8
+#define TILE_SCALE               2
+#define SCALED_TILE_SIZE         (TILE_SIZE * TILE_SCALE)
+#define TITLE                    "Pacman"
+#define TILESET_PATH             "/home/aminov/Documents/Programming/Pacman/resources/tileset.png"
+#define PACMAN_SPEED             120
+#define PACMAN_START_X           13
+#define PACMAN_START_Y           17
+#define DOT_SCORE                10
+#define OFFSET_ALLOWS_CHANGE_DIR 2
 
 // Map texture
-#define LEVEL_OFFSET_X 0
-#define LEVEL_OFFSET_Y 0
-#define LEVEL_WIDTH    28
-#define LEVEL_HEIGHT   31
+#define LEVEL_OFFSET_X           0
+#define LEVEL_OFFSET_Y           0
+#define LEVEL_WIDTH              28
+#define LEVEL_HEIGHT             31
 
 // Graphics
-#define FPS            60
+#define FPS                      60
 
 #endif

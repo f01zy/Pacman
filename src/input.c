@@ -1,6 +1,8 @@
+#include <math.h>
+
+#include "defines.h"
 #include "input.h"
 #include "pacman.h"
-#include "position.h"
 #include "types.h"
 
 void handle_keyboard(struct AppContext *app) {
@@ -12,10 +14,15 @@ void handle_keyboard(struct AppContext *app) {
   if (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W]) dir = DIRECTION_UP;
   if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S]) dir = DIRECTION_DOWN;
   if (dir != app->pacman.curr_dir) {
-    // TODO: поворот можно делать только тогда, когда пакман довольно близко к центру тайла
-    struct Vec2 tile_pos = get_tile_from_pos(app->pacman.pos);
-    struct Vec2 trans_dir = get_vec_dir(dir);
-    if (app->level[tile_pos.y + trans_dir.y][tile_pos.x + trans_dir.x] == TILE_WALL) return;
-    change_pacman_direction(&app->pacman, dir);
+    float tile_center = SCALED_TILE_SIZE / 2.0f;
+    int pos = tile_center;
+    if (dir == DIRECTION_UP || dir == DIRECTION_DOWN) {
+      pos += app->pacman.pos.x;
+    } else {
+      pos += app->pacman.pos.y;
+    }
+    float pos_inside_tile = fmodf(pos, SCALED_TILE_SIZE);
+    float offset = fabsf(pos_inside_tile - tile_center);
+    if (offset <= OFFSET_ALLOWS_CHANGE_DIR) change_pacman_direction(app->level, &app->pacman, dir);
   }
 }

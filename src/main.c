@@ -24,8 +24,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
-  int width = TILE_SIZE * LEVEL_WIDTH * TILE_SCALE;
-  int height = TILE_SIZE * LEVEL_HEIGHT * TILE_SCALE;
+  int width = SCALED_TILE_SIZE * LEVEL_WIDTH;
+  int height = SCALED_TILE_SIZE * LEVEL_HEIGHT;
   struct AppContext *app = (struct AppContext *)SDL_calloc(1, sizeof(struct AppContext));
   if (!SDL_CreateWindowAndRenderer(TITLE, width, height, 0, &app->window, &app->renderer)) {
     SDL_Log("Failed to create window and renderer: %s", SDL_GetError());
