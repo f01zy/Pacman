@@ -7,6 +7,17 @@
 #include "types.h"
 
 void render_level(struct Level level, struct Resources resources, SDL_Renderer *renderer) {
+  // Clear previos frame
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_FRect level_rect = {
+    0,
+    0,
+    SCALED_TILE_SIZE * LEVEL_WIDTH,
+    SCALED_TILE_SIZE * LEVEL_HEIGHT,
+  };
+  SDL_RenderFillRect(renderer, &level_rect);
+
+  // Render level
   int w = SCALED_TILE_SIZE * LEVEL_WIDTH;
   int h = SCALED_TILE_SIZE * LEVEL_HEIGHT;
   SDL_FRect dstmap = {0, 0, w, h};

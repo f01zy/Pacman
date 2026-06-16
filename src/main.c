@@ -13,6 +13,9 @@
 #include "types.h"
 
 void load_resources(struct AppContext *app) {
+  // Context
+  app->stats.is_changed = true;
+
   // Tileset
   SDL_Texture *tileset = IMG_LoadTexture(app->renderer, TILESET_PATH);
   SDL_SetTextureScaleMode(tileset, SDL_SCALEMODE_NEAREST);
@@ -23,6 +26,8 @@ void load_resources(struct AppContext *app) {
   app->resources.font = font;
 }
 
+void change_entities_animation_tile(struct AppContext *app) { change_pacman_animation_tile(&app->pacman); }
+
 void initialize_app_context(struct AppContext *app) {
   load_level(&app->level);
   load_resources(app);
@@ -32,7 +37,11 @@ void initialize_app_context(struct AppContext *app) {
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   SDL_SetAppMetadata("Pacman", "0.0.1", NULL);
   if (!SDL_Init(SDL_INIT_VIDEO)) {
-    SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+    SDL_Log("Failed to initialize SDL: %s\n", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+  if (!TTF_Init()) {
+    SDL_Log("Failed to initialize SDL_ttf: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
   int w = SCALED_TILE_SIZE * LEVEL_WIDTH;
@@ -51,18 +60,25 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   struct AppContext *app = (struct AppContext *)appstate;
   handle_keyboard(app);
   float now = SDL_GetTicks();
-  static const float need = 1.0f / FPS;
-  float deltatime = (now - app->time.prev) / 1000;
-  if (deltatime < need) return SDL_APP_CONTINUE;
-  app->time.prev = now;
-  app->time.delta = deltatime;
 
-  SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
-  SDL_RenderClear(app->renderer);
+  // Change entities animation tile
+  static const float need_animation = 1.0f / ENTITY_ANIMATION_SPEED;
+  float deltatime_animation = (now - app->time.prev_animation) / 1000;
+  if (deltatime_animation >= need_animation) {
+    change_entities_animation_tile(app);
+    app->time.prev_animation = now;
+  }
 
-  iterate_hud(app);
+  // Check frame deltatime
+  static const float need_frame = 1.0f / FPS;
+  float deltatime_frame = (now - app->time.prev_frame) / 1000;
+  if (deltatime_frame < need_frame) return SDL_APP_CONTINUE;
+  app->time.prev_frame = now;
+  app->time.delta = deltatime_frame;
+
   iterate_level(app);
   iterate_pacman(app);
+  iterate_hud(app);
 
   SDL_RenderPresent(app->renderer);
   return SDL_APP_CONTINUE;

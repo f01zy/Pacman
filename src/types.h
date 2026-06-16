@@ -64,6 +64,7 @@ struct Pacman {
 
 struct Stats {
   int score;
+  bool is_changed;
 };
 
 struct Level {
@@ -85,7 +86,8 @@ struct AppContext {
   struct Resources resources;
 
   struct {
-    float prev;
+    float prev_animation;
+    float prev_frame;
     float delta;
   } time;
 };

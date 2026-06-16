@@ -74,9 +74,20 @@ void move_pacman(struct Pacman *pacman, struct Level *level, struct Stats *stats
   pacman->pos = new_pos;
   struct Vec2 curr_tile_pos = get_tile_from_pos(new_pos);
   enum TileType tile_type = level->buf[curr_tile_pos.y][curr_tile_pos.x];
-  if (tile_type == TILE_DOT) {
-    stats->score += DOT_SCORE;
+  switch (tile_type) {
+  case TILE_DOT:
+  case TILE_ENERGIZER:
+    if (tile_type == TILE_DOT) {
+      stats->score += DOT_SCORE;
+    } else {
+      stats->score += ENERGIZER_SCORE;
+    }
+    stats->is_changed = true;
     level->buf[curr_tile_pos.y][curr_tile_pos.x] = TILE_EMPTY;
+    break;
+
+  default:
+    break;
   }
 }
 
@@ -89,6 +100,8 @@ void initialize_pacman(struct Pacman *pacman) {
 }
 
 void change_pacman_desired_direction(struct Pacman *pacman, enum Direction dir) { pacman->desired_dir = dir; }
+
+void change_pacman_animation_tile(struct Pacman *pacman) { pacman->texture_state = (pacman->texture_state + 1) % 3; }
 
 void change_pacman_curr_direction(struct Pacman *pacman, const struct Level *level, enum Direction dir) {
   float tile_center = SCALED_TILE_SIZE / 2.0f;
