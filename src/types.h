@@ -1,8 +1,10 @@
 #ifndef TYPES_INCLUDED
 #define TYPES_INCLUDED
 
-#include "defines.h"
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
+
+#include "defines.h"
 
 enum TileType {
   // Map objects
@@ -60,15 +62,32 @@ struct Pacman {
   int texture_state;
 };
 
+struct Stats {
+  int score;
+};
+
+struct Level {
+  enum TileType buf[LEVEL_HEIGHT][LEVEL_WIDTH];
+  int number;
+};
+
+struct Resources {
+  SDL_Texture *tileset;
+  TTF_Font *font;
+};
+
 struct AppContext {
   SDL_Window *window;
   SDL_Renderer *renderer;
-  SDL_Texture *tileset;
   struct Pacman pacman;
-  enum TileType level[LEVEL_HEIGHT][LEVEL_WIDTH];
-  int level_number;
-  int score;
-  float prev_frame_time;
+  struct Stats stats;
+  struct Level level;
+  struct Resources resources;
+
+  struct {
+    float prev;
+    float delta;
+  } time;
 };
 
 #endif

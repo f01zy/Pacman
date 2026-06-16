@@ -3,12 +3,10 @@
 
 #include <SDL3/SDL.h>
 
-#include "defines.h"
 #include "types.h"
 
 void initialize_pacman(struct Pacman *pacman);
-void render_pacman(struct Pacman *pacman, SDL_Renderer *renderer, SDL_Texture *tileset);
-void change_pacman_direction(enum TileType level[LEVEL_HEIGHT][LEVEL_WIDTH], struct Pacman *pacman, enum Direction dir);
-void move_pacman(enum TileType level[LEVEL_HEIGHT][LEVEL_WIDTH], struct Pacman *pacman, float deltatime);
+void change_pacman_desired_direction(struct Pacman *pacman, enum Direction dir);
+void iterate_pacman(struct AppContext *app);
 
 #endif

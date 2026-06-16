@@ -3,10 +3,9 @@
 
 #include <SDL3/SDL.h>
 
-#include "defines.h"
 #include "types.h"
 
-void load_level(struct AppContext *app, int level);
-void render_level(enum TileType level[LEVEL_HEIGHT][LEVEL_WIDTH], SDL_Renderer *renderer, SDL_Texture *tileset);
+void load_level(struct Level *level);
+void iterate_level(struct AppContext *app);
 
 #endif
