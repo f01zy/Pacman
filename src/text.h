@@ -7,6 +7,6 @@
 
 #include "types.h"
 
-void render_text(const char *text, size_t len, TTF_Font *font, SDL_Color color, struct fVec2 pos, SDL_Renderer *renderer);
+void render_text(const char *text, size_t len, TTF_Font *font, SDL_Color color, struct Align align, SDL_Renderer *renderer);
 
 #endif

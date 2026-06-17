@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void handle_keyboard(struct AppContext *app);
+void handle_keyboard(struct GameContext *game);
 
 #endif

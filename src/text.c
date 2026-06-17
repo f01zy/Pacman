@@ -5,7 +5,7 @@
 #include "text.h"
 #include "types.h"
 
-void render_text(const char *text, size_t len, TTF_Font *font, SDL_Color color, struct fVec2 pos, SDL_Renderer *renderer) {
+void render_text(const char *text, size_t len, TTF_Font *font, SDL_Color color, struct Align align, SDL_Renderer *renderer) {
   SDL_Surface *surface = TTF_RenderText_Solid(font, text, len, color);
   SDL_Texture *texture;
   if (surface) {
@@ -18,9 +18,27 @@ void render_text(const char *text, size_t len, TTF_Font *font, SDL_Color color, 
   }
   float w, h;
   SDL_GetTextureSize(texture, &w, &h);
+  struct fVec2 pos;
+
+  if (align.h == HALIGN_LEFT) {
+    pos.x = 0;
+  } else if (align.h == HALIGN_CENTER) {
+    pos.x = TILE_SIZE * LEVEL_WIDTH / 2.0f - w / 2.0f;
+  } else {
+    pos.x = TILE_SIZE * LEVEL_WIDTH - w;
+  }
+
+  if (align.v == VALIGN_TOP) {
+    pos.y = 0;
+  } else if (align.v == VALIGN_CENTER) {
+    pos.y = TILE_SIZE * LEVEL_HEIGHT + TILE_SIZE * HUD_HEIGHT / 2.0f - h / 2.0f;
+  } else {
+    pos.y = TILE_SIZE * LEVEL_HEIGHT + TILE_SIZE * HUD_HEIGHT - h;
+  }
+
   SDL_FRect dstrect = {
-    pos.x / TILE_SCALE - w / 2,
-    pos.y / TILE_SCALE - h / 2,
+    pos.x,
+    pos.y,
     w,
     h,
   };

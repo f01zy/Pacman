@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void iterate_hud(struct AppContext *app);
+void iterate_hud(struct State *state);
 
 #endif

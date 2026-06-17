@@ -39,6 +39,31 @@ enum Direction {
   DIRECTION_DOWN,
 };
 
+enum VerticalAlign {
+  VALIGN_TOP,
+  VALIGN_CENTER,
+  VALIGN_BOTTOM,
+};
+
+enum HorizontalAlign {
+  HALIGN_LEFT,
+  HALIGN_CENTER,
+  HALIGN_RIGHT,
+};
+
+enum EntityType {
+  ENTITY_PACMAN,
+  ENTITY_GHOST_BLINKY,
+  ENTITY_GHOST_PINKY,
+  ENTITY_GHOST_INKY,
+  ENTITY_GHOST_CLYDE,
+};
+
+struct Align {
+  enum HorizontalAlign h;
+  enum VerticalAlign v;
+};
+
 struct Vec2 {
   int x;
   int y;
@@ -55,11 +80,19 @@ struct Tile {
   struct Vec2 size;
 };
 
-struct Pacman {
+struct Entity {
+  enum EntityType type;
   struct fVec2 pos;
   enum Direction curr_dir;
   enum Direction desired_dir;
-  int texture_state;
+  float speed;
+  float delta;
+
+  struct {
+    enum TileType tiles[4];
+    size_t len;
+    size_t curr;
+  } texture;
 };
 
 struct Stats {
@@ -80,16 +113,27 @@ struct Resources {
 struct AppContext {
   SDL_Window *window;
   SDL_Renderer *renderer;
-  struct Pacman pacman;
-  struct Stats stats;
-  struct Level level;
   struct Resources resources;
 
   struct {
-    float prev_animation;
-    float prev_frame;
+    float prev;
     float delta;
   } time;
+};
+
+struct GameContext {
+  struct Stats stats;
+  struct Level level;
+
+  struct {
+    struct Entity **buf;
+    size_t len;
+  } entities;
+};
+
+struct State {
+  struct AppContext *app;
+  struct GameContext *game;
 };
 
 #endif

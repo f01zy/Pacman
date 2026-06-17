@@ -6,7 +6,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(SOURCE 
   ./src/main.c
   ./src/level.c
-  ./src/pacman.c
+  ./src/entity.c
   ./src/position.c
   ./src/input.c
   ./src/hud.c

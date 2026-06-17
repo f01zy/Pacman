@@ -6,6 +6,6 @@
 #include "types.h"
 
 void load_level(struct Level *level);
-void iterate_level(struct AppContext *app);
+void iterate_level(struct State *state);
 
 #endif

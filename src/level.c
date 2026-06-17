@@ -6,7 +6,7 @@
 #include "tiles.h"
 #include "types.h"
 
-void render_level(struct Level level, struct Resources resources, SDL_Renderer *renderer) {
+void render_level(const struct Level *level, const struct Resources *resources, SDL_Renderer *renderer) {
   // Clear previos frame
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_FRect level_rect = {
@@ -27,10 +27,10 @@ void render_level(struct Level level, struct Resources resources, SDL_Renderer *
     TILE_SIZE * LEVEL_WIDTH,
     TILE_SIZE * LEVEL_HEIGHT,
   };
-  SDL_RenderTexture(renderer, resources.tileset, &srcmap, &dstmap);
+  SDL_RenderTexture(renderer, resources->tileset, &srcmap, &dstmap);
   for (int i = 0; i < LEVEL_HEIGHT; i++) {
     for (int j = 0; j < LEVEL_WIDTH; j++) {
-      enum TileType type = level.buf[i][j];
+      enum TileType type = level->buf[i][j];
       struct Tile tile;
       bool is_found = false;
       for (int k = 0; k < sizeof(tiles) / sizeof(tiles[0]); k++) {
@@ -53,11 +53,10 @@ void render_level(struct Level level, struct Resources resources, SDL_Renderer *
         TILE_SIZE * tile.size.x,
         TILE_SIZE * tile.size.y,
       };
-      SDL_RenderTexture(renderer, resources.tileset, &srcrect, &dstrect);
+      SDL_RenderTexture(renderer, resources->tileset, &srcrect, &dstrect);
     }
   }
 }
 
 void load_level(struct Level *level) { memcpy(level->buf, default_level, sizeof(default_level)); }
-
-void iterate_level(struct AppContext *app) { render_level(app->level, app->resources, app->renderer); }
+void iterate_level(struct State *state) { render_level(&state->game->level, &state->app->resources, state->app->renderer); }
