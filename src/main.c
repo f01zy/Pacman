@@ -7,6 +7,7 @@
 
 #include "defines.h"
 #include "entity.h"
+#include "events.h"
 #include "hud.h"
 #include "input.h"
 #include "level.h"
@@ -62,11 +63,12 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   float now = SDL_GetTicks();
 
   static const float need = 1.0f / FPS;
-  float deltatime = (now - state->app->time.prev) / 1000;
+  float deltatime = (now - state->app->time.prev) / 1000.0f;
   if (deltatime < need) return SDL_APP_CONTINUE;
   state->app->time.prev = now;
   state->app->time.delta = deltatime;
 
+  iterate_events(state);
   iterate_level(state);
   iterate_hud(state);
   for (int i = 0; i < state->game->entities.len; i++) {

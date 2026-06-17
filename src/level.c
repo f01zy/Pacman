@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 
+#include "SDL3/SDL_timer.h"
 #include "defines.h"
 #include "level.h"
 #include "levels.h"
@@ -22,8 +23,8 @@ void render_level(const struct Level *level, const struct Resources *resources, 
   int h = SCALED_TILE_SIZE * LEVEL_HEIGHT;
   SDL_FRect dstmap = {0, 0, w, h};
   SDL_FRect srcmap = {
-    TILE_SIZE * LEVEL_OFFSET_X,
-    TILE_SIZE * LEVEL_OFFSET_Y,
+    0,
+    0,
     TILE_SIZE * LEVEL_WIDTH,
     TILE_SIZE * LEVEL_HEIGHT,
   };
@@ -58,5 +59,21 @@ void render_level(const struct Level *level, const struct Resources *resources, 
   }
 }
 
-void load_level(struct Level *level) { memcpy(level->buf, default_level, sizeof(default_level)); }
+void load_level(struct Level *level) {
+  if (++level->number == 1) {
+    level->phases[0] = 7.0f;
+    level->phases[1] = 20.0f;
+    level->phases[2] = 7.0f;
+    level->phases[3] = 20.0f;
+    level->phases[4] = 5.0f;
+    level->phases[5] = 20.0f;
+    level->phases[6] = 5.0f;
+    level->phases[7] = -1.0f;
+  } else {
+    // TODO: добавить таймеры след уровней
+  }
+  level->curr_phase = 0;
+  memcpy(level->buf, default_level, sizeof(default_level));
+}
+
 void iterate_level(struct State *state) { render_level(&state->game->level, &state->app->resources, state->app->renderer); }

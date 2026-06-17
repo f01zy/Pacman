@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "defines.h"
+#include "types.h"
 #include "utility.h"
 
 struct Entity *get_pacman(struct GameContext *game) {
@@ -26,3 +27,5 @@ struct fVec2 get_tile_center_offset(struct fVec2 pos) {
     fabsf(fmodf(pos.y + tile_center, SCALED_TILE_SIZE) - tile_center),
   };
 }
+
+enum Direction get_opposite_direction(enum Direction dir) { return dir ^ 1; }

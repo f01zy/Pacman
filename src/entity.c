@@ -3,6 +3,7 @@
 #include "defines.h"
 #include "entity.h"
 #include "ghost.h"
+#include "pacman.h"
 #include "position.h"
 #include "tiles.h"
 #include "types.h"
@@ -30,7 +31,7 @@ void render_entity(const struct Entity *entity, const struct Resources *resource
     }
   }
   if (!is_found) {
-    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Pacman tile not found\n");
+    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Entity tile not found\n");
     SDL_Quit();
   }
   SDL_FRect dstrect = {
@@ -93,16 +94,15 @@ void check_entity_animation(struct Entity *entity) {
   }
 }
 
+// TODO: вынести константы
 void initialize_entities(struct GameContext *game) {
-  // Pacman
   struct Entity *pacman = SDL_calloc(1, sizeof(struct Entity));
   pacman->pos = (struct fVec2){
-    SCALED_TILE_SIZE * PACMAN_START_X,
-    SCALED_TILE_SIZE * PACMAN_START_Y,
+    SCALED_TILE_SIZE * 13.0f,
+    SCALED_TILE_SIZE * 17.0f,
   };
-  pacman->tile_pos = get_tile_from_pos(pacman->pos);
   pacman->type = ENTITY_PACMAN;
-  pacman->speed = PACMAN_SPEED;
+  pacman->speed = 120;
   pacman->curr_dir = pacman->desired_dir = DIRECTION_LEFT;
   pacman->texture.tiles[0] = TILE_PACMAN_RIGHT_1;
   pacman->texture.tiles[1] = TILE_PACMAN_LEFT_1;
@@ -111,16 +111,15 @@ void initialize_entities(struct GameContext *game) {
   pacman->texture.curr = 0;
   pacman->texture.len = 3;
 
-  // Blinky
   struct Entity *blinky = SDL_calloc(1, sizeof(struct Entity));
   blinky->pos = (struct fVec2){
-    SCALED_TILE_SIZE * BLINKY_START_X,
-    SCALED_TILE_SIZE * BLINKY_START_Y,
+    SCALED_TILE_SIZE * 13.0f,
+    SCALED_TILE_SIZE * 11.0f,
   };
-  blinky->tile_pos = get_tile_from_pos(blinky->pos);
   blinky->type = ENTITY_GHOST;
-  blinky->as.ghost.type = GHOST_BLINKY;
-  blinky->speed = GHOST_SPEED;
+  blinky->as.ghost.get_target_tile = get_blinky_target_tile;
+  blinky->as.ghost.scatter_target_tile = (struct Vec2){1, 1};
+  blinky->speed = 100;
   blinky->curr_dir = blinky->desired_dir = DIRECTION_LEFT;
   blinky->texture.tiles[0] = TILE_BLINKY_RIGHT_1;
   blinky->texture.tiles[1] = TILE_BLINKY_LEFT_1;
@@ -129,7 +128,6 @@ void initialize_entities(struct GameContext *game) {
   blinky->texture.curr = 0;
   blinky->texture.len = 2;
 
-  // Buffer
   game->entities.len = 2;
   struct Entity **entities = (struct Entity **)SDL_malloc(game->entities.len * sizeof(struct Entity *));
   entities[0] = pacman;
@@ -141,7 +139,11 @@ void change_entity_desired_direction(struct Entity *entity, enum Direction dir) 
 
 void handle_entity_center_tile(struct State *state, struct Entity *entity) {
   change_entity_curr_direction(entity, &state->game->level);
-  if (entity->type == ENTITY_GHOST) entity->desired_dir = get_ghost_desired_direction(state->game, entity);
+  if (entity->type == ENTITY_GHOST) {
+    entity->desired_dir = get_ghost_desired_direction(state->game, entity);
+  } else if (entity->type == ENTITY_PACMAN) {
+    handle_pacman_tile_interaction(state->game);
+  }
 }
 
 void iterate_entity(struct State *state, struct Entity *entity) {

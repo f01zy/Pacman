@@ -1,6 +1,12 @@
 #ifndef DEFINES_INCLUDED
 #define DEFINES_INCLUDED
 
+// UI
+#define TITLE                    "Pacman"
+#define LEVEL_WIDTH              28
+#define LEVEL_HEIGHT             31
+#define HUD_HEIGHT               6
+
 // Game constans
 #define TILE_SIZE                8
 #define TILE_SCALE               2
@@ -8,26 +14,10 @@
 #define TILESET_PATH             "/home/aminov/Documents/Programming/Pacman/resources/tileset.png"
 #define FONT_PATH                "/home/aminov/Documents/Programming/Pacman/resources/font.ttf"
 
-#define PACMAN_SPEED             120
-#define PACMAN_START_X           13.5f
-#define PACMAN_START_Y           17.0f
-
-#define GHOST_SPEED              100
-#define BLINKY_START_X           13.5f
-#define BLINKY_START_Y           11.0f
-
 #define DOT_SCORE                10
 #define ENERGIZER_SCORE          50
 #define OFFSET_ALLOWS_CHANGE_DIR 2
 #define ENTITY_ANIMATION_SPEED   15
-
-// UI
-#define TITLE                    "Pacman"
-#define LEVEL_OFFSET_X           0
-#define LEVEL_OFFSET_Y           0
-#define LEVEL_WIDTH              28
-#define LEVEL_HEIGHT             31
-#define HUD_HEIGHT               6
 
 // Graphics
 #define FPS                      60

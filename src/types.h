@@ -6,18 +6,15 @@
 
 #include "defines.h"
 
+// ===================== ENUMS =====================
+
 enum TileType {
-  // Map objects
   TILE_EMPTY,
   TILE_WALL,
   TILE_GATE,
-
-  // Collect items
   TILE_DOT,
   TILE_ENERGIZER,
   TILE_FRUIT,
-
-  // Pacman
   TILE_PACMAN_RIGHT_1,
   TILE_PACMAN_RIGHT_2,
   TILE_PACMAN_RIGHT_3,
@@ -30,8 +27,6 @@ enum TileType {
   TILE_PACMAN_DOWN_1,
   TILE_PACMAN_DOWN_2,
   TILE_PACMAN_DOWN_3,
-
-  // Blinky
   TILE_BLINKY_RIGHT_1,
   TILE_BLINKY_RIGHT_2,
   TILE_BLINKY_LEFT_1,
@@ -70,6 +65,16 @@ enum GhostType {
   GHOST_BLINKY,
 };
 
+enum PhaseType {
+  PHASE_SCATTER,
+  PHASE_CHASE,
+};
+
+// ===================== STRUCTS =====================
+
+struct GameContext;
+struct AppContext;
+
 struct Align {
   enum HorizontalAlign h;
   enum VerticalAlign v;
@@ -94,7 +99,6 @@ struct Tile {
 struct Entity {
   enum EntityType type;
   struct fVec2 pos;
-  struct Vec2 tile_pos;
   enum Direction curr_dir;
   enum Direction desired_dir;
   float speed;
@@ -108,7 +112,8 @@ struct Entity {
 
   union {
     struct {
-      enum GhostType type;
+      struct Vec2 scatter_target_tile;
+      struct Vec2 (*get_target_tile)(struct GameContext *game, struct Entity *ghost);
     } ghost;
   } as;
 };
@@ -120,6 +125,9 @@ struct Stats {
 
 struct Level {
   enum TileType buf[LEVEL_HEIGHT][LEVEL_WIDTH];
+  float phases[8];
+  float phase_start_time;
+  int curr_phase;
   int number;
 };
 

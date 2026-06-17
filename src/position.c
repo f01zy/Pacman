@@ -26,6 +26,7 @@ struct Vec2 get_tile_from_pos(struct fVec2 pos) {
   };
 }
 
+// TODO: хуево работает
 bool is_collision(const struct Level *level, struct fVec2 pos, enum Direction dir) {
   if (dir == DIRECTION_RIGHT || dir == DIRECTION_DOWN) {
     pos.x += SCALED_TILE_SIZE - 2;

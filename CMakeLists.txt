@@ -13,6 +13,8 @@ set(SOURCE
   ./src/text.c
   ./src/ghost.c
   ./src/utility.c
+  ./src/pacman.c
+  ./src/events.c
 )
 
 add_subdirectory(./third_party/SDL EXCLUDE_FROM_ALL)

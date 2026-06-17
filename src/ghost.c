@@ -17,10 +17,10 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
     return ghost->desired_dir;
   }
   struct Vec2 target;
-  switch (ghost->as.ghost.type) {
-  case GHOST_BLINKY:
-    target = get_blinky_target_tile(game, ghost);
-    break;
+  if (game->level.curr_phase % 2) {
+    target = ghost->as.ghost.get_target_tile(game, ghost);
+  } else {
+    target = ghost->as.ghost.scatter_target_tile;
   }
   struct Vec2 trans_dir = get_vec_dir(ghost->curr_dir);
   struct Vec2 curr_tile_pos = get_tile_from_pos(ghost->pos);
@@ -29,10 +29,11 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
     curr_tile_pos.y + trans_dir.y,
   };
   float distance[4];
+  int dir_priority[4] = {0, 2, 3, 1};
   for (int i = 0; i < 4; i++) {
     distance[i] = FLT_MAX;
     enum Direction curr_dir = DIRECTION_RIGHT + i;
-    if (curr_dir == (ghost->curr_dir ^ 1)) continue;
+    if (curr_dir == get_opposite_direction(ghost->curr_dir)) continue;
     struct Vec2 curr_trans_dir = get_vec_dir(curr_dir);
     struct Vec2 checked_tile_pos = {
       next_tile_pos.x + curr_trans_dir.x,
@@ -44,7 +45,7 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
   enum Direction ans = ghost->desired_dir;
   float ans_distance = FLT_MAX;
   for (int i = 0; i < 4; i++) {
-    if (distance[i] < ans_distance) {
+    if (distance[i] < ans_distance || (distance[i] == ans_distance && dir_priority[i] > dir_priority[ans])) {
       ans = DIRECTION_RIGHT + i;
       ans_distance = distance[i];
     }
@@ -54,4 +55,11 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
     return ghost->desired_dir;
   }
   return ans;
+}
+
+void run_away(struct GameContext *game) {
+  for (int i = 0; i < game->entities.len; i++) {
+    struct Entity *entity = game->entities.buf[i];
+    if (entity->type == ENTITY_GHOST) entity->curr_dir = entity->desired_dir = get_opposite_direction(entity->curr_dir);
+  }
 }
