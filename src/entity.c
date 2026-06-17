@@ -1,10 +1,12 @@
 #include <SDL3/SDL.h>
-#include <math.h>
 
+#include "defines.h"
 #include "entity.h"
+#include "ghost.h"
 #include "position.h"
 #include "tiles.h"
 #include "types.h"
+#include "utility.h"
 
 void align_entity_x(struct Entity *entity) {
   struct Vec2 tile_pos = get_tile_from_pos(entity->pos);
@@ -64,23 +66,13 @@ void move_entity(struct Entity *entity, struct Level *level, float deltatime) {
 }
 
 void change_entity_curr_direction(struct Entity *entity, const struct Level *level) {
-  float tile_center = SCALED_TILE_SIZE / 2.0f;
-  int pos = tile_center;
-  if (entity->desired_dir == DIRECTION_UP || entity->desired_dir == DIRECTION_DOWN) {
-    pos += entity->pos.x;
-  } else {
-    pos += entity->pos.y;
-  }
-  float pos_inside_tile = fmodf(pos, SCALED_TILE_SIZE);
-  float offset = fabsf(pos_inside_tile - tile_center);
-  if (offset > OFFSET_ALLOWS_CHANGE_DIR) return;
   struct Vec2 tile_pos = get_tile_from_pos(entity->pos);
   struct Vec2 trans_dir = get_vec_dir(entity->desired_dir);
   struct Vec2 new_pos = {
     tile_pos.x + trans_dir.x,
     tile_pos.y + trans_dir.y,
   };
-  if (level->buf[new_pos.y][new_pos.x] == TILE_WALL) return;
+  if (!check_tile_pos_validity(new_pos) || level->buf[new_pos.y][new_pos.x] == TILE_WALL) return;
   if (entity->desired_dir == DIRECTION_UP || entity->desired_dir == DIRECTION_DOWN) {
     align_entity_x(entity);
   } else {
@@ -108,6 +100,8 @@ void initialize_entities(struct GameContext *game) {
     SCALED_TILE_SIZE * PACMAN_START_X,
     SCALED_TILE_SIZE * PACMAN_START_Y,
   };
+  pacman->tile_pos = get_tile_from_pos(pacman->pos);
+  pacman->type = ENTITY_PACMAN;
   pacman->speed = PACMAN_SPEED;
   pacman->curr_dir = pacman->desired_dir = DIRECTION_LEFT;
   pacman->texture.tiles[0] = TILE_PACMAN_RIGHT_1;
@@ -117,18 +111,47 @@ void initialize_entities(struct GameContext *game) {
   pacman->texture.curr = 0;
   pacman->texture.len = 3;
 
+  // Blinky
+  struct Entity *blinky = SDL_calloc(1, sizeof(struct Entity));
+  blinky->pos = (struct fVec2){
+    SCALED_TILE_SIZE * BLINKY_START_X,
+    SCALED_TILE_SIZE * BLINKY_START_Y,
+  };
+  blinky->tile_pos = get_tile_from_pos(blinky->pos);
+  blinky->type = ENTITY_GHOST;
+  blinky->as.ghost.type = GHOST_BLINKY;
+  blinky->speed = GHOST_SPEED;
+  blinky->curr_dir = blinky->desired_dir = DIRECTION_LEFT;
+  blinky->texture.tiles[0] = TILE_BLINKY_RIGHT_1;
+  blinky->texture.tiles[1] = TILE_BLINKY_LEFT_1;
+  blinky->texture.tiles[2] = TILE_BLINKY_UP_1;
+  blinky->texture.tiles[3] = TILE_BLINKY_DOWN_1;
+  blinky->texture.curr = 0;
+  blinky->texture.len = 2;
+
   // Buffer
-  game->entities.len = 1;
+  game->entities.len = 2;
   struct Entity **entities = (struct Entity **)SDL_malloc(game->entities.len * sizeof(struct Entity *));
   entities[0] = pacman;
+  entities[1] = blinky;
   game->entities.buf = entities;
 }
 
 void change_entity_desired_direction(struct Entity *entity, enum Direction dir) { entity->desired_dir = dir; }
 
-void iterate_entity(struct State *state, struct Entity *entity) {
+void handle_entity_center_tile(struct State *state, struct Entity *entity) {
   change_entity_curr_direction(entity, &state->game->level);
+  if (entity->type == ENTITY_GHOST) entity->desired_dir = get_ghost_desired_direction(state->game, entity);
+}
+
+void iterate_entity(struct State *state, struct Entity *entity) {
   move_entity(entity, &state->game->level, state->app->time.delta);
   render_entity(entity, &state->app->resources, state->app->renderer);
   check_entity_animation(entity);
+
+  struct fVec2 offset = get_tile_center_offset(entity->pos);
+  if (((entity->curr_dir == DIRECTION_RIGHT || entity->curr_dir == DIRECTION_LEFT) && offset.x <= OFFSET_ALLOWS_CHANGE_DIR) ||
+      ((entity->curr_dir == DIRECTION_UP || entity->curr_dir == DIRECTION_DOWN) && offset.y <= OFFSET_ALLOWS_CHANGE_DIR)) {
+    handle_entity_center_tile(state, entity);
+  }
 }

@@ -17,7 +17,7 @@ enum TileType {
   TILE_ENERGIZER,
   TILE_FRUIT,
 
-  // Entities
+  // Pacman
   TILE_PACMAN_RIGHT_1,
   TILE_PACMAN_RIGHT_2,
   TILE_PACMAN_RIGHT_3,
@@ -30,6 +30,16 @@ enum TileType {
   TILE_PACMAN_DOWN_1,
   TILE_PACMAN_DOWN_2,
   TILE_PACMAN_DOWN_3,
+
+  // Blinky
+  TILE_BLINKY_RIGHT_1,
+  TILE_BLINKY_RIGHT_2,
+  TILE_BLINKY_LEFT_1,
+  TILE_BLINKY_LEFT_2,
+  TILE_BLINKY_UP_1,
+  TILE_BLINKY_UP_2,
+  TILE_BLINKY_DOWN_1,
+  TILE_BLINKY_DOWN_2,
 };
 
 enum Direction {
@@ -53,10 +63,11 @@ enum HorizontalAlign {
 
 enum EntityType {
   ENTITY_PACMAN,
-  ENTITY_GHOST_BLINKY,
-  ENTITY_GHOST_PINKY,
-  ENTITY_GHOST_INKY,
-  ENTITY_GHOST_CLYDE,
+  ENTITY_GHOST,
+};
+
+enum GhostType {
+  GHOST_BLINKY,
 };
 
 struct Align {
@@ -83,6 +94,7 @@ struct Tile {
 struct Entity {
   enum EntityType type;
   struct fVec2 pos;
+  struct Vec2 tile_pos;
   enum Direction curr_dir;
   enum Direction desired_dir;
   float speed;
@@ -93,6 +105,12 @@ struct Entity {
     size_t len;
     size_t curr;
   } texture;
+
+  union {
+    struct {
+      enum GhostType type;
+    } ghost;
+  } as;
 };
 
 struct Stats {

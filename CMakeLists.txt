@@ -11,6 +11,8 @@ set(SOURCE
   ./src/input.c
   ./src/hud.c
   ./src/text.c
+  ./src/ghost.c
+  ./src/utility.c
 )
 
 add_subdirectory(./third_party/SDL EXCLUDE_FROM_ALL)

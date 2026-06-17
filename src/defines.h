@@ -9,12 +9,16 @@
 #define FONT_PATH                "/home/aminov/Documents/Programming/Pacman/resources/font.ttf"
 
 #define PACMAN_SPEED             120
-#define PACMAN_START_X           13
-#define PACMAN_START_Y           17
+#define PACMAN_START_X           13.5f
+#define PACMAN_START_Y           17.0f
+
+#define GHOST_SPEED              100
+#define BLINKY_START_X           13.5f
+#define BLINKY_START_Y           11.0f
 
 #define DOT_SCORE                10
 #define ENERGIZER_SCORE          50
-#define OFFSET_ALLOWS_CHANGE_DIR 1
+#define OFFSET_ALLOWS_CHANGE_DIR 2
 #define ENTITY_ANIMATION_SPEED   15
 
 // UI

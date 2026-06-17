@@ -3,22 +3,12 @@
 #include "entity.h"
 #include "input.h"
 #include "types.h"
+#include "utility.h"
 
 void handle_keyboard(struct GameContext *game) {
   int numkeys;
   const bool *state = SDL_GetKeyboardState(&numkeys);
-  struct Entity *pacman = NULL;
-  for (int i = 0; i < game->entities.len; i++) {
-    struct Entity *curr = game->entities.buf[i];
-    if (curr->type == ENTITY_PACMAN) {
-      pacman = curr;
-      break;
-    }
-  }
-  if (pacman == NULL) {
-    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Pacman not found\n");
-    SDL_Quit();
-  }
+  struct Entity *pacman = get_pacman(game);
   enum Direction dir = pacman->curr_dir;
   if (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_D]) dir = DIRECTION_RIGHT;
   if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_A]) dir = DIRECTION_LEFT;

@@ -1,9 +1,22 @@
-#include "position.h"
+#include <math.h>
+
 #include "defines.h"
+#include "position.h"
 #include "types.h"
+
+float get_distance_between_two_tiles(struct Vec2 a, struct Vec2 b) {
+  float dx = a.x - b.x;
+  float dy = a.y - b.y;
+  return sqrt(dx * dx + dy * dy);
+}
 
 struct Vec2 get_vec_dir(enum Direction dir) {
   return (struct Vec2){dir == DIRECTION_RIGHT ? 1 : dir == DIRECTION_LEFT ? -1 : 0, dir == DIRECTION_UP ? -1 : dir == DIRECTION_DOWN ? 1 : 0};
+}
+
+bool check_tile_pos_validity(struct Vec2 pos) {
+  if (pos.x < 0 || pos.x >= LEVEL_WIDTH || pos.y < 0 || pos.y >= LEVEL_HEIGHT) return false;
+  return true;
 }
 
 struct Vec2 get_tile_from_pos(struct fVec2 pos) {

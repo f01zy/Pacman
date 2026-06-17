@@ -1,8 +1,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <stddef.h>
 
-#include "SDL3/SDL_stdinc.h"
 #include "defines.h"
 #include "hud.h"
 #include "text.h"
