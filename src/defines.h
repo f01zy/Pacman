@@ -17,7 +17,7 @@
 
 #define DOT_SCORE                10
 #define ENERGIZER_SCORE          50
-#define OFFSET_ALLOWS_CHANGE_DIR 2
+#define OFFSET_ALLOWS_CHANGE_DIR 3
 #define ENTITY_ANIMATION_SPEED   15
 
 // Graphics

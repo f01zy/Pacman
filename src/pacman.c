@@ -13,6 +13,7 @@ void handle_pacman_tile_interaction(struct GameContext *game) {
   case TILE_ENERGIZER:
     if (tile_type == TILE_DOT) {
       game->stats.score += DOT_SCORE;
+      game->level.dots.collected++;
     } else {
       game->stats.score += ENERGIZER_SCORE;
     }

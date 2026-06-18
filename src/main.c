@@ -22,6 +22,7 @@ void load_resources(struct AppContext *app) {
 }
 
 void initialize_state(struct State *state) {
+  state->game->state = GAME_STATE_READY;
   state->game->stats.is_changed = true;
   initialize_entities(state->game);
   load_level(&state->game->level);
@@ -60,8 +61,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 SDL_AppResult SDL_AppIterate(void *appstate) {
   struct State *state = (struct State *)appstate;
   handle_keyboard(state->game);
-  float now = SDL_GetTicks();
 
+  if (state->game->state == GAME_STATE_PACMAN_DIE) {
+    SDL_Log("You lose\n");
+    return SDL_APP_SUCCESS;
+  }
+  if (state->game->state == GAME_STATE_LEVEL_COMPLETE) {
+    SDL_Log("You win\n");
+    return SDL_APP_SUCCESS;
+  }
+
+  float now = SDL_GetTicks();
   static const float need = 1.0f / FPS;
   float deltatime = (now - state->app->time.prev) / 1000.0f;
   if (deltatime < need) return SDL_APP_CONTINUE;

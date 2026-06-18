@@ -35,6 +35,14 @@ enum TileType {
   TILE_BLINKY_UP_2,
   TILE_BLINKY_DOWN_1,
   TILE_BLINKY_DOWN_2,
+  TILE_PINKY_RIGHT_1,
+  TILE_PINKY_RIGHT_2,
+  TILE_PINKY_LEFT_1,
+  TILE_PINKY_LEFT_2,
+  TILE_PINKY_UP_1,
+  TILE_PINKY_UP_2,
+  TILE_PINKY_DOWN_1,
+  TILE_PINKY_DOWN_2,
 };
 
 enum Direction {
@@ -68,6 +76,21 @@ enum GhostType {
 enum PhaseType {
   PHASE_SCATTER,
   PHASE_CHASE,
+};
+
+enum GameState {
+  GAME_STATE_READY,
+  GAME_STATE_PLAYING,
+  GAME_STATE_PAUSE,
+  GAME_STATE_PACMAN_DIE,
+  GAME_STATE_LEVEL_COMPLETE,
+};
+
+enum GhostState {
+  GHOST_STATE_CHASE,
+  GHOST_STATE_SCATTER,
+  GHOST_STATE_FRIGHTENED,
+  GHOST_STATE_EATEN,
 };
 
 // ===================== STRUCTS =====================
@@ -111,6 +134,7 @@ struct Entity {
 
   union {
     struct {
+      enum GhostState state;
       struct Vec2 scatter_target_tile;
       struct Vec2 (*get_target_tile)(struct GameContext *game, struct Entity *ghost);
     } ghost;
@@ -124,10 +148,18 @@ struct Stats {
 
 struct Level {
   enum TileType buf[LEVEL_HEIGHT][LEVEL_WIDTH];
-  float phases[8];
-  float phase_start_time;
-  int curr_phase;
   int number;
+
+  struct {
+    float timers[9];
+    float start;
+    int curr;
+  } phases;
+
+  struct {
+    int total;
+    int collected;
+  } dots;
 };
 
 struct Resources {
@@ -149,6 +181,7 @@ struct AppContext {
 struct GameContext {
   struct Stats stats;
   struct Level level;
+  enum GameState state;
 
   struct {
     struct Entity **buf;
