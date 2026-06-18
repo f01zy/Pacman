@@ -41,3 +41,12 @@ float get_entity_speed(const struct Entity *entity, const struct Level *level) {
   }
   return scaled_speed;
 }
+
+bool is_tile_center(struct fVec2 pos, enum Direction dir) {
+  struct fVec2 offset = get_tile_center_offset(pos);
+  if (((dir == DIRECTION_RIGHT || dir == DIRECTION_LEFT) && offset.x <= OFFSET_ALLOWS_CHANGE_DIR) ||
+      ((dir == DIRECTION_UP || dir == DIRECTION_DOWN) && offset.y <= OFFSET_ALLOWS_CHANGE_DIR)) {
+    return true;
+  }
+  return false;
+}

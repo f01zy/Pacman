@@ -14,6 +14,7 @@
 #define SCALED_TILE_SIZE         (TILE_SIZE * TILE_SCALE)
 #define TILESET_PATH             "/home/aminov/Documents/Programming/Pacman/resources/tileset.png"
 #define FONT_PATH                "/home/aminov/Documents/Programming/Pacman/resources/font.ttf"
+#define GAME_READY_TIME          4.5f
 
 #define DOT_SCORE                10
 #define ENERGIZER_SCORE          50

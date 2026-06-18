@@ -14,6 +14,7 @@ enum TileType {
   TILE_TUNEL,
   TILE_DOT,
   TILE_ENERGIZER,
+  TILE_GHOST_HOUSE,
   TILE_FRUIT,
   TILE_PACMAN_RIGHT_1,
   TILE_PACMAN_RIGHT_2,
@@ -87,6 +88,7 @@ enum GameState {
 };
 
 enum GhostState {
+  GHOST_STATE_HOME,
   GHOST_STATE_CHASE,
   GHOST_STATE_SCATTER,
   GHOST_STATE_FRIGHTENED,
@@ -151,7 +153,7 @@ struct Level {
   int number;
 
   struct {
-    float timers[9];
+    float timers[8];
     float start;
     int curr;
   } phases;
@@ -171,6 +173,7 @@ struct AppContext {
   SDL_Window *window;
   SDL_Renderer *renderer;
   struct Resources resources;
+  float start_time;
 
   struct {
     float prev;

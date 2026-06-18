@@ -32,15 +32,17 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
     curr_tile_pos.x + trans_dir.x,
     curr_tile_pos.y + trans_dir.y,
   };
-  if (game->level.buf[curr_tile_pos.y][curr_tile_pos.x] == TILE_TUNEL) return ghost->curr_dir;
-  switch (ghost->as.ghost.state) {
-  case GHOST_STATE_CHASE:
+  enum TileType curr_tile_type = game->level.buf[curr_tile_pos.y][curr_tile_pos.x];
+
+  if (curr_tile_type == TILE_TUNEL) return ghost->curr_dir;
+  if (curr_tile_type == TILE_GHOST_HOUSE) {
+    target = (struct Vec2){14, 12};
+  } else if (ghost->as.ghost.state == GHOST_STATE_CHASE) {
     target = ghost->as.ghost.get_target_tile(game, ghost);
-    break;
-  case GHOST_STATE_SCATTER:
+  } else if (ghost->as.ghost.state == GHOST_STATE_SCATTER) {
     target = ghost->as.ghost.scatter_target_tile;
-    break;
   }
+
   float distance[4];
   int dir_priority[4] = {0, 2, 3, 1};
   for (int i = 0; i < 4; i++) {
@@ -52,18 +54,30 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
       next_tile_pos.x + curr_trans_dir.x,
       next_tile_pos.y + curr_trans_dir.y,
     };
-    if (!check_tile_pos_validity(checked_tile_pos) || game->level.buf[checked_tile_pos.y][checked_tile_pos.x] == TILE_WALL) continue;
+    enum TileType checked_tile_type = game->level.buf[checked_tile_pos.y][checked_tile_pos.x];
+    if (!check_tile_pos_validity(checked_tile_pos) || (curr_tile_type != TILE_GHOST_HOUSE && checked_tile_type == TILE_GHOST_HOUSE) ||
+        checked_tile_type == TILE_WALL)
+      continue;
     distance[i] = get_distance_between_two_tiles(checked_tile_pos, target);
   }
   enum Direction ans = ghost->desired_dir;
   float ans_distance = FLT_MAX;
+  int ans_priority = -1;
   for (int i = 0; i < 4; i++) {
-    if (distance[i] < ans_distance || (distance[i] == ans_distance && dir_priority[i] > dir_priority[ans])) {
+    if (distance[i] == FLT_MAX) continue;
+    enum Direction curr_direction = DIRECTION_RIGHT + i;
+    if (distance[i] < ans_distance) {
       ans = DIRECTION_RIGHT + i;
       ans_distance = distance[i];
+      ans_priority = dir_priority[i];
+    }
+    if (distance[i] == ans_distance) {
+      if (dir_priority[i] > ans_priority) {
+        ans = curr_direction;
+        ans_priority = dir_priority[i];
+      }
     }
   }
-  // TODO: они в стену ебашутся и не двигаются
   if (ans_distance == FLT_MAX) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to calculate the ghost desired direction\n");
     return ghost->desired_dir;
@@ -76,7 +90,7 @@ void set_ghosts_state(struct GameContext *game, enum GhostState state) {
     struct Entity *entity = game->entities.buf[i];
     if (entity->type == ENTITY_GHOST) {
       entity->as.ghost.state = state;
-      entity->curr_dir = entity->desired_dir = get_opposite_direction(entity->curr_dir);
+      entity->desired_dir = get_opposite_direction(entity->curr_dir);
     }
   }
 }

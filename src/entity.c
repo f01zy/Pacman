@@ -66,7 +66,7 @@ void move_entity(struct Entity *entity, const struct Level *level, float deltati
     entity->pos.y + translated_direction.y * get_entity_speed(entity, level) * deltatime,
   };
   if (is_collision(level, new_pos, entity->curr_dir)) {
-    if (entity->curr_dir == DIRECTION_UP || entity->curr_dir == DIRECTION_DOWN) {
+    if (entity->curr_dir == DIRECTION_RIGHT || entity->curr_dir == DIRECTION_LEFT) {
       align_entity_x(entity);
     } else {
       align_entity_y(entity);
@@ -138,7 +138,7 @@ void initialize_entities(struct GameContext *game) {
   };
   blinky->type = ENTITY_GHOST;
   blinky->as.ghost.get_target_tile = get_blinky_target_tile;
-  blinky->as.ghost.scatter_target_tile = (struct Vec2){26, 1};
+  blinky->as.ghost.scatter_target_tile = (struct Vec2){LEVEL_WIDTH, 0};
   blinky->curr_dir = blinky->desired_dir = DIRECTION_RIGHT;
   blinky->texture.tiles[0] = TILE_BLINKY_RIGHT_1;
   blinky->texture.tiles[1] = TILE_BLINKY_LEFT_1;
@@ -150,12 +150,12 @@ void initialize_entities(struct GameContext *game) {
   // Pinky
   struct Entity *pinky = SDL_calloc(1, sizeof(struct Entity));
   pinky->pos = (struct fVec2){
-    SCALED_TILE_SIZE * 11.0f,
-    SCALED_TILE_SIZE * 11.5f,
+    SCALED_TILE_SIZE * 14.0f,
+    SCALED_TILE_SIZE * 14.5f,
   };
   pinky->type = ENTITY_GHOST;
   pinky->as.ghost.get_target_tile = get_pinky_target_tile;
-  pinky->as.ghost.scatter_target_tile = (struct Vec2){1, 1};
+  pinky->as.ghost.scatter_target_tile = (struct Vec2){0, 0};
   pinky->curr_dir = pinky->desired_dir = DIRECTION_LEFT;
   pinky->texture.tiles[0] = TILE_PINKY_RIGHT_1;
   pinky->texture.tiles[1] = TILE_PINKY_LEFT_1;
@@ -170,6 +170,7 @@ void initialize_entities(struct GameContext *game) {
   entities[1] = blinky;
   entities[2] = pinky;
   game->entities.buf = entities;
+  set_ghosts_state(game, GHOST_STATE_SCATTER);
 }
 
 void change_entity_desired_direction(struct Entity *entity, enum Direction dir) { entity->desired_dir = dir; }
@@ -177,12 +178,8 @@ void change_entity_desired_direction(struct Entity *entity, enum Direction dir) 
 void iterate_entity(struct State *state, struct Entity *entity) {
   render_entity(entity, &state->app->resources, state->app->renderer);
   check_entity_animation(entity);
-  if (state->game->state != GAME_STATE_READY) {
+  if (!(state->game->state == GAME_STATE_READY)) {
     move_entity(entity, &state->game->level, state->app->time.delta);
-    struct fVec2 offset = get_tile_center_offset(entity->pos);
-    if (((entity->curr_dir == DIRECTION_RIGHT || entity->curr_dir == DIRECTION_LEFT) && offset.x <= OFFSET_ALLOWS_CHANGE_DIR) ||
-        ((entity->curr_dir == DIRECTION_UP || entity->curr_dir == DIRECTION_DOWN) && offset.y <= OFFSET_ALLOWS_CHANGE_DIR)) {
-      handle_entity_center_tile(state, entity);
-    }
+    if (is_tile_center(entity->pos, entity->curr_dir)) handle_entity_center_tile(state, entity);
   }
 }

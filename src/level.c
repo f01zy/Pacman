@@ -64,32 +64,31 @@ void load_level(struct Level *level) {
 
   // Timers (in seconds)
   level->number++;
-  level->phases.timers[0] = 4.5f;
-  level->phases.timers[8] = -1.0f;
+  level->phases.timers[7] = -1.0f;
   if (level->number == 1) {
-    level->phases.timers[1] = 7.0f;
-    level->phases.timers[2] = 20.0f;
-    level->phases.timers[3] = 7.0f;
-    level->phases.timers[4] = 20.0f;
-    level->phases.timers[5] = 5.0f;
-    level->phases.timers[6] = 20.0f;
-    level->phases.timers[7] = 5.0f;
+    level->phases.timers[0] = 7.0f;
+    level->phases.timers[1] = 20.0f;
+    level->phases.timers[2] = 7.0f;
+    level->phases.timers[3] = 20.0f;
+    level->phases.timers[4] = 5.0f;
+    level->phases.timers[5] = 20.0f;
+    level->phases.timers[6] = 5.0f;
   } else if (level->number >= 2 && level->number <= 4) {
-    level->phases.timers[1] = 7.0f;
-    level->phases.timers[2] = 20.0f;
-    level->phases.timers[3] = 7.0f;
-    level->phases.timers[4] = 20.0f;
-    level->phases.timers[5] = 5.0f;
-    level->phases.timers[6] = 1033.0f;
-    level->phases.timers[7] = 1.0f / FPS;
+    level->phases.timers[0] = 7.0f;
+    level->phases.timers[1] = 20.0f;
+    level->phases.timers[2] = 7.0f;
+    level->phases.timers[3] = 20.0f;
+    level->phases.timers[4] = 5.0f;
+    level->phases.timers[5] = 1033.0f;
+    level->phases.timers[6] = 1.0f / FPS;
   } else {
-    level->phases.timers[1] = 5.0f;
-    level->phases.timers[2] = 20.0f;
-    level->phases.timers[3] = 5.0f;
-    level->phases.timers[4] = 20.0f;
-    level->phases.timers[5] = 5.0f;
-    level->phases.timers[6] = 1037.0f;
-    level->phases.timers[7] = 1.0f / FPS;
+    level->phases.timers[0] = 5.0f;
+    level->phases.timers[1] = 20.0f;
+    level->phases.timers[2] = 5.0f;
+    level->phases.timers[3] = 20.0f;
+    level->phases.timers[4] = 5.0f;
+    level->phases.timers[5] = 1037.0f;
+    level->phases.timers[6] = 1.0f / FPS;
   }
   level->phases.curr = 0;
 
