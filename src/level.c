@@ -1,6 +1,5 @@
 #include <SDL3/SDL.h>
 
-#include "SDL3/SDL_timer.h"
 #include "defines.h"
 #include "level.h"
 #include "levels.h"

@@ -21,18 +21,40 @@ bool check_tile_pos_validity(struct Vec2 pos) {
 
 struct Vec2 get_tile_from_pos(struct fVec2 pos) {
   return (struct Vec2){
-    pos.x / SCALED_TILE_SIZE,
-    pos.y / SCALED_TILE_SIZE,
+    MIN(pos.x / SCALED_TILE_SIZE, LEVEL_WIDTH - 1),
+    MIN(pos.y / SCALED_TILE_SIZE, LEVEL_HEIGHT - 1),
   };
 }
 
-// TODO: хуево работает
+struct fVec2 get_tile_center_offset(struct fVec2 pos) {
+  float tile_center = SCALED_TILE_SIZE / 2.0f;
+  return (struct fVec2){
+    fabsf(fmodf(pos.x, SCALED_TILE_SIZE) - tile_center),
+    fabsf(fmodf(pos.y, SCALED_TILE_SIZE) - tile_center),
+  };
+}
+
 bool is_collision(const struct Level *level, struct fVec2 pos, enum Direction dir) {
-  if (dir == DIRECTION_RIGHT || dir == DIRECTION_DOWN) {
-    pos.x += SCALED_TILE_SIZE - 2;
-    pos.y += SCALED_TILE_SIZE - 2;
+  struct Vec2 tile_1, tile_2;
+  float radius = (SCALED_TILE_SIZE / 2.0f) - 0.1f;
+  switch (dir) {
+  case DIRECTION_RIGHT:
+    tile_1 = get_tile_from_pos((struct fVec2){pos.x + radius, pos.y - radius});
+    tile_2 = get_tile_from_pos((struct fVec2){pos.x + radius, pos.y + radius});
+    break;
+  case DIRECTION_LEFT:
+    tile_1 = get_tile_from_pos((struct fVec2){pos.x - radius, pos.y - radius});
+    tile_2 = get_tile_from_pos((struct fVec2){pos.x - radius, pos.y + radius});
+    break;
+  case DIRECTION_DOWN:
+    tile_1 = get_tile_from_pos((struct fVec2){pos.x - radius, pos.y + radius});
+    tile_2 = get_tile_from_pos((struct fVec2){pos.x + radius, pos.y + radius});
+    break;
+  case DIRECTION_UP:
+    tile_1 = get_tile_from_pos((struct fVec2){pos.x - radius, pos.y - radius});
+    tile_2 = get_tile_from_pos((struct fVec2){pos.x + radius, pos.y - radius});
+    break;
   }
-  struct Vec2 tile_pos = get_tile_from_pos(pos);
-  if (level->buf[tile_pos.y][tile_pos.x] == TILE_WALL) return true;
-  return false;
+  if (!check_tile_pos_validity(tile_1) || !check_tile_pos_validity(tile_2)) return true;
+  return (level->buf[tile_1.y][tile_1.x] == TILE_WALL || level->buf[tile_2.y][tile_2.x] == TILE_WALL);
 }

@@ -8,6 +8,7 @@
 #define HUD_HEIGHT               6
 
 // Game constans
+#define MAX_SPEED                80
 #define TILE_SIZE                8
 #define TILE_SCALE               2
 #define SCALED_TILE_SIZE         (TILE_SIZE * TILE_SCALE)
@@ -23,6 +24,8 @@
 #define FPS                      60
 
 // Utility
+#define MIN(A, B)                ((A) < (B) ? (A) : (B))
+#define MAX(A, B)                ((A) > (B) ? (A) : (B))
 #define MAX_TEXT_BUFFER_SIZE     256
 
 #endif

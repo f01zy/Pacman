@@ -1,8 +1,7 @@
-#include <math.h>
-
-#include "defines.h"
-#include "types.h"
 #include "utility.h"
+#include "defines.h"
+#include "position.h"
+#include "types.h"
 
 struct Entity *get_pacman(struct GameContext *game) {
   struct Entity *pacman = NULL;
@@ -20,12 +19,25 @@ struct Entity *get_pacman(struct GameContext *game) {
   return pacman;
 }
 
-struct fVec2 get_tile_center_offset(struct fVec2 pos) {
-  float tile_center = SCALED_TILE_SIZE / 2.0f;
-  return (struct fVec2){
-    fabsf(fmodf(pos.x + tile_center, SCALED_TILE_SIZE) - tile_center),
-    fabsf(fmodf(pos.y + tile_center, SCALED_TILE_SIZE) - tile_center),
-  };
-}
-
 enum Direction get_opposite_direction(enum Direction dir) { return dir ^ 1; }
+
+float get_entity_speed(const struct Entity *entity, const struct Level *level) {
+  struct Vec2 tile_pos = get_tile_from_pos(entity->pos);
+  enum TileType tile_type = level->buf[tile_pos.y][tile_pos.x];
+  float scaled_speed = MAX_SPEED * TILE_SCALE;
+  if (entity->type == ENTITY_PACMAN) {
+    if (tile_type == TILE_DOT) {
+      return scaled_speed * 0.71f;
+    } else {
+      return scaled_speed * 0.80f;
+    }
+  }
+  if (entity->type == ENTITY_GHOST) {
+    if (tile_type == TILE_TUNEL) {
+      return scaled_speed * 0.40f;
+    } else {
+      return scaled_speed * 0.75f;
+    }
+  }
+  return scaled_speed;
+}

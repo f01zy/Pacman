@@ -11,7 +11,7 @@
 enum TileType {
   TILE_EMPTY,
   TILE_WALL,
-  TILE_GATE,
+  TILE_TUNEL,
   TILE_DOT,
   TILE_ENERGIZER,
   TILE_FRUIT,
@@ -101,7 +101,6 @@ struct Entity {
   struct fVec2 pos;
   enum Direction curr_dir;
   enum Direction desired_dir;
-  float speed;
   float delta;
 
   struct {
