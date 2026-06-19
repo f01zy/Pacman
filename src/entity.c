@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <stdlib.h>
 
 #include "defines.h"
 #include "entity.h"
@@ -33,6 +34,7 @@ void render_entity(const struct Entity *entity, const struct Resources *resource
   if (!is_found) {
     SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Entity tile not found\n");
     SDL_Quit();
+    exit(1);
   }
   SDL_FRect dstrect = {
     entity->pos.x - (SCALED_TILE_SIZE * tile.size.x) / 2.0f,
@@ -120,22 +122,22 @@ void initialize_entities(struct GameContext *game) {
   struct Entity *pacman = create_entity(ENTITY_PACMAN, (struct fVec2){14.0f, 23.5f}, DIRECTION_LEFT, pacman_tiles, 3);
 
   // Blinky
-  enum TileType blinky_tiles[4] = {TILE_BLINKY_RIGHT_1, TILE_BLINKY_LEFT_1, TILE_BLINKY_UP_1, TILE_BLINKY_DOWN_1};
   struct fVec2 blinky_pos = {14.0f, 11.5f};
   struct Vec2 blinky_scatter_target = {LEVEL_WIDTH, 0};
+  enum TileType blinky_tiles[4] = {TILE_BLINKY_RIGHT_1, TILE_BLINKY_LEFT_1, TILE_BLINKY_UP_1, TILE_BLINKY_DOWN_1};
   struct Entity *blinky = create_ghost(blinky_pos, DIRECTION_RIGHT, GHOST_TYPE_BLINKY, blinky_tiles, get_blinky_target_tile, blinky_scatter_target, 0);
 
   // Pinky
-  enum TileType pinky_tiles[4] = {TILE_PINKY_RIGHT_1, TILE_PINKY_LEFT_1, TILE_PINKY_UP_1, TILE_PINKY_DOWN_1};
-  struct fVec2 pinky_pos = {12.0f, 11.5f};
+  struct fVec2 pinky_pos = {14.0f, 14.5f};
   struct Vec2 pinky_scatter_target = {1, 1};
+  enum TileType pinky_tiles[4] = {TILE_PINKY_RIGHT_1, TILE_PINKY_LEFT_1, TILE_PINKY_UP_1, TILE_PINKY_DOWN_1};
   struct Entity *pinky = create_ghost(pinky_pos, DIRECTION_UP, GHOST_TYPE_PINKY, pinky_tiles, get_pinky_target_tile, pinky_scatter_target, 0);
 
   // Inky
-  enum TileType inky_tiles[4] = {TILE_INKY_RIGHT_1, TILE_INKY_LEFT_1, TILE_INKY_UP_1, TILE_INKY_DOWN_1};
-  struct fVec2 inky_pos = {16.0f, 11.5f};
+  struct fVec2 inky_pos = {16.0f, 14.5f};
   struct Vec2 inky_scatter_target = {LEVEL_WIDTH, LEVEL_HEIGHT};
-  struct Entity *inky = create_ghost(inky_pos, DIRECTION_LEFT, GHOST_TYPE_INKY, inky_tiles, get_inky_target_tile, inky_scatter_target, 40);
+  enum TileType inky_tiles[4] = {TILE_INKY_RIGHT_1, TILE_INKY_LEFT_1, TILE_INKY_UP_1, TILE_INKY_DOWN_1};
+  struct Entity *inky = create_ghost(inky_pos, DIRECTION_UP, GHOST_TYPE_INKY, inky_tiles, get_inky_target_tile, inky_scatter_target, 40);
 
   // Buffer
   game->entities.len = 4;
@@ -152,8 +154,13 @@ void change_entity_desired_direction(struct Entity *entity, enum Direction dir) 
 void iterate_entity(struct State *state, struct Entity *entity) {
   render_entity(entity, &state->app->resources, state->app->renderer);
   check_entity_animation(entity);
-  if (!(state->game->state == GAME_STATE_READY) && !(entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_HOME)) {
-    move_entity(entity, &state->game->level, state->app->time.delta);
-    if (is_tile_center(entity->pos, entity->curr_dir)) handle_entity_center_tile(state, entity);
+  if (state->game->state != GAME_STATE_READY) {
+    if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_HOME) return;
+    if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_EXITING) {
+      move_ghost_out_home(state->game, entity, state->app->time.delta);
+    } else {
+      move_entity(entity, &state->game->level, state->app->time.delta);
+      if (is_tile_center(entity->pos, entity->curr_dir)) handle_entity_center_tile(state, entity);
+    }
   }
 }

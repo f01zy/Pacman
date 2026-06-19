@@ -4,6 +4,17 @@
 #include "position.h"
 #include "types.h"
 
+struct Vec2 get_pacman_tile_with_offset(struct Entity *pacman, int offset) {
+  struct Vec2 tile_pos = get_tile_from_pos(pacman->pos);
+  struct Vec2 vec_dir = get_vec_dir(pacman->curr_dir);
+  struct Vec2 offset_pos = {
+    tile_pos.x + vec_dir.x * offset,
+    tile_pos.y + vec_dir.y * offset,
+  };
+  if (pacman->curr_dir == DIRECTION_UP) offset_pos.x -= offset;
+  return offset_pos;
+}
+
 float get_distance_between_two_tiles(struct Vec2 a, struct Vec2 b) {
   float dx = a.x - b.x;
   float dy = a.y - b.y;

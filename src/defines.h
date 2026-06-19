@@ -21,6 +21,9 @@
 #define OFFSET_ALLOWS_CHANGE_DIR 3
 #define ENTITY_ANIMATION_SPEED   15
 
+#define GHOST_HOME_TARGET_X      13
+#define GHOST_HOME_TARGET_Y      11
+
 // Graphics
 #define FPS                      60
 

@@ -2,6 +2,7 @@
 #include "defines.h"
 #include "position.h"
 #include "types.h"
+#include <stdlib.h>
 
 struct Entity *get_pacman(struct GameContext *game) {
   struct Entity *pacman = NULL;
@@ -15,6 +16,7 @@ struct Entity *get_pacman(struct GameContext *game) {
   if (pacman == NULL) {
     SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Pacman not found\n");
     SDL_Quit();
+    exit(1);
   }
   return pacman;
 }
@@ -31,6 +33,7 @@ struct Entity *get_ghost(struct GameContext *game, enum GhostType type) {
   if (ghost == NULL) {
     SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Ghost not found\n");
     SDL_Quit();
+    exit(1);
   }
   return ghost;
 }

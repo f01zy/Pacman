@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <stdlib.h>
 
 #include "defines.h"
 #include "text.h"
@@ -15,6 +16,7 @@ void render_text(const char *text, size_t len, TTF_Font *font, SDL_Color color, 
   if (!texture) {
     SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Failed to create text texture: %s\n", SDL_GetError());
     SDL_Quit();
+    exit(1);
   }
   float w, h;
   SDL_GetTextureSize(texture, &w, &h);

@@ -23,12 +23,11 @@ void check_level_phase(struct State *state) {
 
 void check_game_over(struct GameContext *game) {
   struct Entity *pacman = get_pacman(game);
-  struct Vec2 pacman_tile_pos = get_tile_from_pos(pacman->pos);
+  struct Vec2 pacman_pos = get_tile_from_pos(pacman->pos);
   for (int i = 0; i < game->entities.len; i++) {
     struct Entity *ghost = game->entities.buf[i];
-    if (ghost->type != ENTITY_GHOST) continue;
-    struct Vec2 ghost_tile_pos = get_tile_from_pos(ghost->pos);
-    if (!memcmp(&pacman_tile_pos, &ghost_tile_pos, sizeof(pacman_tile_pos))) game->state = GAME_STATE_PACMAN_DIE;
+    struct Vec2 ghost_pos = get_tile_from_pos(ghost->pos);
+    if (ghost->type == ENTITY_GHOST && !memcmp(&pacman_pos, &ghost_pos, sizeof(pacman_pos))) game->state = GAME_STATE_PACMAN_DIE;
   }
 }
 
@@ -50,8 +49,8 @@ void check_level_finished(struct GameContext *game) {
 void check_ghosts_home(struct GameContext *game) {
   for (int i = 0; i < game->entities.len; i++) {
     struct Entity *entity = game->entities.buf[i];
-    if (entity->type != ENTITY_GHOST || entity->as.ghost.state != GHOST_STATE_HOME) continue;
-    if (game->level.dots.collected >= entity->as.ghost.dots_to_leave_home) entity->as.ghost.state = get_ghosts_state(game->level.phases.curr);
+    if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_HOME && game->level.dots.collected >= entity->as.ghost.dots_to_leave_home)
+      entity->as.ghost.state = GHOST_STATE_EXITING;
   }
 }
 
