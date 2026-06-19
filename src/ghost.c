@@ -15,11 +15,34 @@ struct Vec2 get_pinky_target_tile(struct GameContext *game, struct Entity *ghost
   struct Entity *pacman = get_pacman(game);
   struct Vec2 tile_pos = get_tile_from_pos(pacman->pos);
   struct Vec2 vec_dir = get_vec_dir(pacman->curr_dir);
-  struct Vec2 offset_pos = {tile_pos.x + vec_dir.x * 4, tile_pos.y + vec_dir.y * 4};
+  struct Vec2 offset_pos = {
+    tile_pos.x + vec_dir.x * 4,
+    tile_pos.y + vec_dir.y * 4,
+  };
   if (pacman->curr_dir == DIRECTION_UP) offset_pos.x -= 4;
   return offset_pos;
 }
 
+struct Vec2 get_inky_target_tile(struct GameContext *game, struct Entity *ghost) {
+  struct Entity *pacman = get_pacman(game);
+  struct Entity *blinky = get_ghost(game, GHOST_TYPE_BLINKY);
+  struct Vec2 pacman_tile_pos = get_tile_from_pos(pacman->pos);
+  struct Vec2 blinky_tile_pos = get_tile_from_pos(blinky->pos);
+  struct Vec2 vec_dir = get_vec_dir(pacman->curr_dir);
+  struct Vec2 offset_pacman_tile_pos = {
+    pacman_tile_pos.x + vec_dir.x * 2,
+    pacman_tile_pos.y + vec_dir.y * 2,
+  };
+  if (pacman->curr_dir == DIRECTION_UP) offset_pacman_tile_pos.x -= 2;
+  int dx = offset_pacman_tile_pos.x - blinky_tile_pos.x;
+  int dy = offset_pacman_tile_pos.y - blinky_tile_pos.y;
+  return (struct Vec2){
+    offset_pacman_tile_pos.x + dx,
+    offset_pacman_tile_pos.y + dy,
+  };
+}
+
+// TODO: починить дом, они там застревают и колбасятся
 enum Direction get_ghost_desired_direction(struct GameContext *game, struct Entity *ghost) {
   if (ghost->type != ENTITY_GHOST) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "You can only get direction for a ghost\n");
@@ -35,9 +58,7 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
   enum TileType curr_tile_type = game->level.buf[curr_tile_pos.y][curr_tile_pos.x];
 
   if (curr_tile_type == TILE_TUNEL) return ghost->curr_dir;
-  if (curr_tile_type == TILE_GHOST_HOUSE) {
-    target = (struct Vec2){14, 12};
-  } else if (ghost->as.ghost.state == GHOST_STATE_CHASE) {
+  if (ghost->as.ghost.state == GHOST_STATE_CHASE) {
     target = ghost->as.ghost.get_target_tile(game, ghost);
   } else if (ghost->as.ghost.state == GHOST_STATE_SCATTER) {
     target = ghost->as.ghost.scatter_target_tile;
@@ -55,9 +76,7 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
       next_tile_pos.y + curr_trans_dir.y,
     };
     enum TileType checked_tile_type = game->level.buf[checked_tile_pos.y][checked_tile_pos.x];
-    if (!check_tile_pos_validity(checked_tile_pos) || (curr_tile_type != TILE_GHOST_HOUSE && checked_tile_type == TILE_GHOST_HOUSE) ||
-        checked_tile_type == TILE_WALL)
-      continue;
+    if (!check_tile_pos_validity(checked_tile_pos) || checked_tile_type == TILE_GHOST_HOUSE || checked_tile_type == TILE_WALL) continue;
     distance[i] = get_distance_between_two_tiles(checked_tile_pos, target);
   }
   enum Direction ans = ghost->desired_dir;

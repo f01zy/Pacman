@@ -9,15 +9,15 @@
 #include "types.h"
 #include "utility.h"
 
-void check_level_phase(struct GameContext *game) {
-  struct Level *level = &game->level;
+void check_level_phase(struct State *state) {
+  struct Level *level = &state->game->level;
   if (level->phases.curr == 7) return;
   float now = SDL_GetTicks();
-  float deltatime = (now - level->phases.start) / 1000.0f;
-  if (deltatime >= game->level.phases.timers[level->phases.curr]) {
-    level->phases.start = now;
+  float deltatime = (now - state->app->timers.phase_start) / 1000.0f;
+  if (deltatime >= level->phases.timers[level->phases.curr]) {
     level->phases.curr++;
-    set_ghosts_state(game, level->phases.curr % 2 ? GHOST_STATE_CHASE : GHOST_STATE_SCATTER);
+    state->app->timers.phase_start = now;
+    set_ghosts_state(state->game, get_ghosts_state(level->phases.curr));
   }
 }
 
@@ -34,10 +34,12 @@ void check_game_over(struct GameContext *game) {
 
 void check_game_ready(struct State *state) {
   float now = SDL_GetTicks();
-  float deltatime = (now - state->app->start_time) / 1000.0f;
+  float deltatime = (now - state->app->timers.program_start) / 1000.0f;
   if (deltatime > GAME_READY_TIME) {
     state->game->state = GAME_STATE_PLAYING;
     state->game->stats.is_changed = true;
+    state->app->timers.game_start = now;
+    state->app->timers.phase_start = now;
   }
 }
 
@@ -45,12 +47,21 @@ void check_level_finished(struct GameContext *game) {
   if (game->level.dots.collected == game->level.dots.total) game->state = GAME_STATE_LEVEL_COMPLETE;
 }
 
+void check_ghosts_home(struct GameContext *game) {
+  for (int i = 0; i < game->entities.len; i++) {
+    struct Entity *entity = game->entities.buf[i];
+    if (entity->type != ENTITY_GHOST || entity->as.ghost.state != GHOST_STATE_HOME) continue;
+    if (game->level.dots.collected >= entity->as.ghost.dots_to_leave_home) entity->as.ghost.state = get_ghosts_state(game->level.phases.curr);
+  }
+}
+
 void iterate_events(struct State *state) {
   if (state->game->state == GAME_STATE_READY) {
     check_game_ready(state);
   } else {
-    check_level_phase(state->game);
+    check_level_phase(state);
   }
   check_game_over(state->game);
   check_level_finished(state->game);
+  check_ghosts_home(state->game);
 }

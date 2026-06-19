@@ -34,6 +34,14 @@ static const struct Tile tiles[] = {
   {TILE_PINKY_UP_2, {67, 10}, {2, 2}},
   {TILE_PINKY_DOWN_1, {69, 10}, {2, 2}},
   {TILE_PINKY_DOWN_2, {71, 10}, {2, 2}},
+  {TILE_INKY_RIGHT_1, {57, 12}, {2, 2}},
+  {TILE_INKY_RIGHT_2, {59, 12}, {2, 2}},
+  {TILE_INKY_LEFT_1, {61, 12}, {2, 2}},
+  {TILE_INKY_LEFT_2, {63, 12}, {2, 2}},
+  {TILE_INKY_UP_1, {65, 12}, {2, 2}},
+  {TILE_INKY_UP_2, {67, 12}, {2, 2}},
+  {TILE_INKY_DOWN_1, {69, 12}, {2, 2}},
+  {TILE_INKY_DOWN_2, {71, 12}, {2, 2}},
 };
 
 #endif

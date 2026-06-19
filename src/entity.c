@@ -116,61 +116,35 @@ void handle_entity_center_tile(struct State *state, struct Entity *entity) {
 
 void initialize_entities(struct GameContext *game) {
   // Pacman
-  struct Entity *pacman = SDL_calloc(1, sizeof(struct Entity));
-  pacman->pos = (struct fVec2){
-    SCALED_TILE_SIZE * 14.0f,
-    SCALED_TILE_SIZE * 23.5f,
-  };
-  pacman->type = ENTITY_PACMAN;
-  pacman->curr_dir = pacman->desired_dir = DIRECTION_LEFT;
-  pacman->texture.tiles[0] = TILE_PACMAN_RIGHT_1;
-  pacman->texture.tiles[1] = TILE_PACMAN_LEFT_1;
-  pacman->texture.tiles[2] = TILE_PACMAN_UP_1;
-  pacman->texture.tiles[3] = TILE_PACMAN_DOWN_1;
-  pacman->texture.curr = 0;
-  pacman->texture.len = 3;
+  enum TileType pacman_tiles[4] = {TILE_PACMAN_RIGHT_1, TILE_PACMAN_LEFT_1, TILE_PACMAN_UP_1, TILE_PACMAN_DOWN_1};
+  struct Entity *pacman = create_entity(ENTITY_PACMAN, (struct fVec2){14.0f, 23.5f}, DIRECTION_LEFT, pacman_tiles, 3);
 
   // Blinky
-  struct Entity *blinky = SDL_calloc(1, sizeof(struct Entity));
-  blinky->pos = (struct fVec2){
-    SCALED_TILE_SIZE * 14.0f,
-    SCALED_TILE_SIZE * 11.5f,
-  };
-  blinky->type = ENTITY_GHOST;
-  blinky->as.ghost.get_target_tile = get_blinky_target_tile;
-  blinky->as.ghost.scatter_target_tile = (struct Vec2){LEVEL_WIDTH, 0};
-  blinky->curr_dir = blinky->desired_dir = DIRECTION_RIGHT;
-  blinky->texture.tiles[0] = TILE_BLINKY_RIGHT_1;
-  blinky->texture.tiles[1] = TILE_BLINKY_LEFT_1;
-  blinky->texture.tiles[2] = TILE_BLINKY_UP_1;
-  blinky->texture.tiles[3] = TILE_BLINKY_DOWN_1;
-  blinky->texture.curr = 0;
-  blinky->texture.len = 2;
+  enum TileType blinky_tiles[4] = {TILE_BLINKY_RIGHT_1, TILE_BLINKY_LEFT_1, TILE_BLINKY_UP_1, TILE_BLINKY_DOWN_1};
+  struct fVec2 blinky_pos = {14.0f, 11.5f};
+  struct Vec2 blinky_scatter_target = {LEVEL_WIDTH, 0};
+  struct Entity *blinky = create_ghost(blinky_pos, DIRECTION_RIGHT, GHOST_TYPE_BLINKY, blinky_tiles, get_blinky_target_tile, blinky_scatter_target, 0);
 
   // Pinky
-  struct Entity *pinky = SDL_calloc(1, sizeof(struct Entity));
-  pinky->pos = (struct fVec2){
-    SCALED_TILE_SIZE * 14.0f,
-    SCALED_TILE_SIZE * 14.5f,
-  };
-  pinky->type = ENTITY_GHOST;
-  pinky->as.ghost.get_target_tile = get_pinky_target_tile;
-  pinky->as.ghost.scatter_target_tile = (struct Vec2){0, 0};
-  pinky->curr_dir = pinky->desired_dir = DIRECTION_LEFT;
-  pinky->texture.tiles[0] = TILE_PINKY_RIGHT_1;
-  pinky->texture.tiles[1] = TILE_PINKY_LEFT_1;
-  pinky->texture.tiles[2] = TILE_PINKY_UP_1;
-  pinky->texture.tiles[3] = TILE_PINKY_DOWN_1;
-  pinky->texture.curr = 0;
-  pinky->texture.len = 2;
+  enum TileType pinky_tiles[4] = {TILE_PINKY_RIGHT_1, TILE_PINKY_LEFT_1, TILE_PINKY_UP_1, TILE_PINKY_DOWN_1};
+  struct fVec2 pinky_pos = {12.0f, 11.5f};
+  struct Vec2 pinky_scatter_target = {1, 1};
+  struct Entity *pinky = create_ghost(pinky_pos, DIRECTION_UP, GHOST_TYPE_PINKY, pinky_tiles, get_pinky_target_tile, pinky_scatter_target, 0);
 
-  game->entities.len = 3;
+  // Inky
+  enum TileType inky_tiles[4] = {TILE_INKY_RIGHT_1, TILE_INKY_LEFT_1, TILE_INKY_UP_1, TILE_INKY_DOWN_1};
+  struct fVec2 inky_pos = {16.0f, 11.5f};
+  struct Vec2 inky_scatter_target = {LEVEL_WIDTH, LEVEL_HEIGHT};
+  struct Entity *inky = create_ghost(inky_pos, DIRECTION_LEFT, GHOST_TYPE_INKY, inky_tiles, get_inky_target_tile, inky_scatter_target, 40);
+
+  // Buffer
+  game->entities.len = 4;
   struct Entity **entities = (struct Entity **)SDL_malloc(game->entities.len * sizeof(struct Entity *));
   entities[0] = pacman;
   entities[1] = blinky;
   entities[2] = pinky;
+  entities[3] = inky;
   game->entities.buf = entities;
-  set_ghosts_state(game, GHOST_STATE_SCATTER);
 }
 
 void change_entity_desired_direction(struct Entity *entity, enum Direction dir) { entity->desired_dir = dir; }
@@ -178,7 +152,7 @@ void change_entity_desired_direction(struct Entity *entity, enum Direction dir) 
 void iterate_entity(struct State *state, struct Entity *entity) {
   render_entity(entity, &state->app->resources, state->app->renderer);
   check_entity_animation(entity);
-  if (!(state->game->state == GAME_STATE_READY)) {
+  if (!(state->game->state == GAME_STATE_READY) && !(entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_HOME)) {
     move_entity(entity, &state->game->level, state->app->time.delta);
     if (is_tile_center(entity->pos, entity->curr_dir)) handle_entity_center_tile(state, entity);
   }

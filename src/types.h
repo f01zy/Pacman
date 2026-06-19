@@ -44,6 +44,14 @@ enum TileType {
   TILE_PINKY_UP_2,
   TILE_PINKY_DOWN_1,
   TILE_PINKY_DOWN_2,
+  TILE_INKY_RIGHT_1,
+  TILE_INKY_RIGHT_2,
+  TILE_INKY_LEFT_1,
+  TILE_INKY_LEFT_2,
+  TILE_INKY_UP_1,
+  TILE_INKY_UP_2,
+  TILE_INKY_DOWN_1,
+  TILE_INKY_DOWN_2,
 };
 
 enum Direction {
@@ -71,7 +79,9 @@ enum EntityType {
 };
 
 enum GhostType {
-  GHOST_BLINKY,
+  GHOST_TYPE_BLINKY,
+  GHOST_TYPE_PINKY,
+  GHOST_TYPE_INKY,
 };
 
 enum PhaseType {
@@ -99,6 +109,7 @@ enum GhostState {
 
 struct GameContext;
 struct AppContext;
+struct Entity;
 
 struct Align {
   enum HorizontalAlign h;
@@ -121,6 +132,8 @@ struct Tile {
   struct Vec2 size;
 };
 
+typedef struct Vec2 (*GhostTargetTile)(struct GameContext *game, struct Entity *ghost);
+
 struct Entity {
   enum EntityType type;
   struct fVec2 pos;
@@ -136,9 +149,11 @@ struct Entity {
 
   union {
     struct {
-      enum GhostState state;
       struct Vec2 scatter_target_tile;
-      struct Vec2 (*get_target_tile)(struct GameContext *game, struct Entity *ghost);
+      enum GhostState state;
+      enum GhostType type;
+      GhostTargetTile get_target_tile;
+      float dots_to_leave_home;
     } ghost;
   } as;
 };
@@ -154,7 +169,6 @@ struct Level {
 
   struct {
     float timers[8];
-    float start;
     int curr;
   } phases;
 
@@ -173,7 +187,12 @@ struct AppContext {
   SDL_Window *window;
   SDL_Renderer *renderer;
   struct Resources resources;
-  float start_time;
+
+  struct {
+    float program_start;
+    float game_start;
+    float phase_start;
+  } timers;
 
   struct {
     float prev;

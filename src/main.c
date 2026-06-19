@@ -1,3 +1,4 @@
+#include "SDL3/SDL_timer.h"
 #define SDL_MAIN_USE_CALLBACKS 1
 
 #include <SDL3/SDL.h>
@@ -22,6 +23,7 @@ void load_resources(struct AppContext *app) {
 }
 
 void initialize_state(struct State *state) {
+  state->app->timers.program_start = SDL_GetTicks();
   state->game->state = GAME_STATE_READY;
   state->game->stats.is_changed = true;
   initialize_entities(state->game);
