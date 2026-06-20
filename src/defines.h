@@ -6,8 +6,10 @@
 #define LEVEL_WIDTH              28
 #define LEVEL_HEIGHT             31
 #define HUD_HEIGHT               6
+#define PACMAN_DIE_TILES         11
 
 // Game constans
+#define DOTS_COUNT               244
 #define MAX_SPEED                80
 #define TILE_SIZE                8
 #define TILE_SCALE               2
@@ -15,16 +17,15 @@
 #define TILESET_PATH             "/home/aminov/Documents/Programming/Pacman/resources/tileset.png"
 #define FONT_PATH                "/home/aminov/Documents/Programming/Pacman/resources/font.ttf"
 #define GAME_READY_TIME          4.5f
-
 #define DOT_SCORE                10
 #define ENERGIZER_SCORE          50
 #define OFFSET_ALLOWS_CHANGE_DIR 3
 #define ENTITY_ANIMATION_SPEED   15
-
 #define GHOST_INACTIVITY_TIMER   4.0f
 #define CLYDE_RADIUS             8.0f
 #define GHOST_HOME_TARGET_X      13
 #define GHOST_HOME_TARGET_Y      11
+#define PACMAN_LIVES             3
 
 // Graphics
 #define FPS                      60

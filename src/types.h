@@ -28,6 +28,17 @@ enum TileType {
   TILE_PACMAN_DOWN_1,
   TILE_PACMAN_DOWN_2,
   TILE_PACMAN_DOWN_3,
+  TILE_PACMAN_DIE_1,
+  TILE_PACMAN_DIE_2,
+  TILE_PACMAN_DIE_3,
+  TILE_PACMAN_DIE_4,
+  TILE_PACMAN_DIE_5,
+  TILE_PACMAN_DIE_6,
+  TILE_PACMAN_DIE_7,
+  TILE_PACMAN_DIE_8,
+  TILE_PACMAN_DIE_9,
+  TILE_PACMAN_DIE_10,
+  TILE_PACMAN_DIE_11,
   TILE_BLINKY_RIGHT_1,
   TILE_BLINKY_RIGHT_2,
   TILE_BLINKY_LEFT_1,
@@ -102,8 +113,9 @@ enum GameState {
   GAME_STATE_READY,
   GAME_STATE_PLAYING,
   GAME_STATE_PAUSE,
-  GAME_STATE_PACMAN_DIE,
   GAME_STATE_LEVEL_COMPLETE,
+  GAME_STATE_PACMAN_DIE,
+  GAME_STATE_GAME_OVER,
 };
 
 enum GhostState {
@@ -149,6 +161,7 @@ struct Entity {
   struct fVec2 pos;
   enum Direction curr_dir;
   enum Direction desired_dir;
+  bool is_die;
   float delta;
 
   struct {
@@ -163,7 +176,8 @@ struct Entity {
       enum GhostState state;
       enum GhostType type;
       GhostTargetTile get_target_tile;
-      float dots_to_leave_home;
+      float dots_to_leave_home_1;
+      float dots_to_leave_home_2;
     } ghost;
   } as;
 };
@@ -175,6 +189,7 @@ struct Stats {
 
 struct Level {
   enum TileType buf[LEVEL_HEIGHT][LEVEL_WIDTH];
+  bool is_pacman_died;
   int number;
 
   struct {
@@ -211,6 +226,7 @@ struct GameContext {
   struct Stats stats;
   struct Level level;
   enum GameState state;
+  int lives;
 
   struct {
     struct Entity **buf;

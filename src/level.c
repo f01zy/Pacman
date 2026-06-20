@@ -1,13 +1,13 @@
 #include <SDL3/SDL.h>
 
 #include "defines.h"
+#include "entity.h"
 #include "level.h"
 #include "levels.h"
 #include "tiles.h"
 #include "types.h"
 
 void render_level(const struct Level *level, const struct Resources *resources, SDL_Renderer *renderer) {
-  // Clear previous frame
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_FRect level_rect = {
     0,
@@ -16,8 +16,6 @@ void render_level(const struct Level *level, const struct Resources *resources, 
     SCALED_TILE_SIZE * LEVEL_HEIGHT,
   };
   SDL_RenderFillRect(renderer, &level_rect);
-
-  // Render level
   int w = SCALED_TILE_SIZE * LEVEL_WIDTH;
   int h = SCALED_TILE_SIZE * LEVEL_HEIGHT;
   SDL_FRect dstmap = {0, 0, w, h};
@@ -58,12 +56,7 @@ void render_level(const struct Level *level, const struct Resources *resources, 
   }
 }
 
-void load_level(struct Level *level) {
-  // Map
-  memcpy(level->buf, default_level, sizeof(default_level));
-
-  // Timers (in seconds)
-  level->number++;
+void load_level_timers(struct Level *level) {
   level->phases.timers[7] = -1.0f;
   if (level->number == 1) {
     level->phases.timers[0] = 7.0f;
@@ -90,15 +83,23 @@ void load_level(struct Level *level) {
     level->phases.timers[5] = 1037.0f;
     level->phases.timers[6] = 1.0f / FPS;
   }
-  level->phases.curr = 0;
+}
 
-  // Dots
-  level->dots.collected = 0;
-  for (int i = 0; i < LEVEL_HEIGHT; i++) {
-    for (int j = 0; j < LEVEL_WIDTH; j++) {
-      if (level->buf[i][j] == TILE_DOT) level->dots.total++;
-    }
+void load_level(struct State *state, bool is_update_map) {
+  struct Level *level = &state->game->level;
+  if (is_update_map) {
+    memcpy(level->buf, default_level, sizeof(default_level));
+    level->is_pacman_died = false;
   }
+  free_entities(state->game);
+  initialize_entities(state->game);
+  load_level_timers(level);
+  state->game->stats.is_changed = true;
+  state->game->state = GAME_STATE_READY;
+  level->dots.total = DOTS_COUNT;
+  level->dots.collected = 0;
+  level->phases.curr = 0;
+  level->number++;
 }
 
 void iterate_level(struct State *state) { render_level(&state->game->level, &state->app->resources, state->app->renderer); }

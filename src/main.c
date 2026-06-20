@@ -1,4 +1,3 @@
-#include "SDL3/SDL_timer.h"
 #define SDL_MAIN_USE_CALLBACKS 1
 
 #include <SDL3/SDL.h>
@@ -24,10 +23,8 @@ void load_resources(struct AppContext *app) {
 }
 
 void initialize_state(struct State *state) {
-  state->game->state = GAME_STATE_READY;
-  state->game->stats.is_changed = true;
-  initialize_entities(state->game);
-  load_level(&state->game->level);
+  state->game->lives = PACMAN_LIVES;
+  load_level(state, true);
   load_resources(state->app);
 }
 
@@ -64,24 +61,17 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   struct State *state = (struct State *)appstate;
   handle_keyboard(state->game);
 
-  if (state->game->state == GAME_STATE_PACMAN_DIE) {
-    SDL_Log("You lose\n");
-    return SDL_APP_SUCCESS;
-  }
-  if (state->game->state == GAME_STATE_LEVEL_COMPLETE) {
-    SDL_Log("You win\n");
-    return SDL_APP_SUCCESS;
-  }
-
   static const float need = 1.0f / FPS;
   float deltatime = get_deltatime(state->app->timers.last_frame);
   if (get_deltatime(state->app->timers.last_frame) < need) return SDL_APP_CONTINUE;
 
-  iterate_events(state);
   iterate_level(state);
   iterate_hud(state);
-  for (int i = 0; i < state->game->entities.len; i++) {
-    iterate_entity(state, state->game->entities.buf[i]);
+  if (state->game->state != GAME_STATE_GAME_OVER) {
+    for (int i = 0; i < state->game->entities.len; i++) {
+      iterate_entity(state, state->game->entities.buf[i]);
+    }
+    iterate_events(state);
   }
 
   state->app->timers.last_frame = SDL_GetTicks();
@@ -99,12 +89,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   struct State *state = (struct State *)appstate;
-  SDL_DestroyTexture(state->app->resources.tileset);
+  free_entities(state->game);
   TTF_CloseFont(state->app->resources.font);
-  for (int i = 0; i < state->game->entities.len; i++) {
-    SDL_free(state->game->entities.buf[i]);
-  }
-  SDL_free(state->game->entities.buf);
+  SDL_DestroyTexture(state->app->resources.tileset);
   SDL_free(state->game);
   SDL_free(state->app);
   SDL_free(state);

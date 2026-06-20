@@ -27,3 +27,9 @@ void handle_pacman_tile_interaction(struct State *state) {
     break;
   }
 }
+
+void handle_pacman_die(struct Entity *pacman) {
+  pacman->is_die = true;
+  pacman->texture.len = 11;
+  pacman->texture.curr = 0;
+}

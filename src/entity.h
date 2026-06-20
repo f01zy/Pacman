@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+void free_entities(struct GameContext *game);
 void initialize_entities(struct GameContext *game);
 void change_entity_desired_direction(struct Entity *entity, enum Direction dir);
 void iterate_entity(struct State *state, struct Entity *entity);

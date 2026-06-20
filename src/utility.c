@@ -2,8 +2,31 @@
 #include "SDL3/SDL_timer.h"
 #include "defines.h"
 #include "position.h"
+#include "tiles.h"
 #include "types.h"
 #include <stdlib.h>
+
+int get_dots_limit(struct GameContext *game, struct Entity *ghost) {
+  return game->level.is_pacman_died ? ghost->as.ghost.dots_to_leave_home_2 : ghost->as.ghost.dots_to_leave_home_1;
+}
+
+struct Tile get_tile(enum TileType type) {
+  bool is_found = false;
+  struct Tile tile;
+  for (int i = 0; i < sizeof(tiles) / sizeof(tiles[0]); i++) {
+    if (tiles[i].type == type) {
+      is_found = true;
+      tile = tiles[i];
+      break;
+    }
+  }
+  if (!is_found) {
+    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Entity tile not found\n");
+    SDL_Quit();
+    exit(1);
+  }
+  return tile;
+}
 
 struct Entity *get_pacman(struct GameContext *game) {
   struct Entity *pacman = NULL;
@@ -66,8 +89,8 @@ float get_deltatime(float prev) { return (SDL_GetTicks() - prev) / 1000.0f; }
 
 bool is_tile_center(struct fVec2 pos, enum Direction dir) {
   struct fVec2 offset = get_tile_center_offset(pos);
-  if (((dir == DIRECTION_RIGHT || dir == DIRECTION_LEFT) && offset.x <= OFFSET_ALLOWS_CHANGE_DIR) ||
-      ((dir == DIRECTION_UP || dir == DIRECTION_DOWN) && offset.y <= OFFSET_ALLOWS_CHANGE_DIR)) {
+  if (((dir == DIRECTION_RIGHT || dir == DIRECTION_LEFT) && offset.x <= OFFSET_ALLOWS_CHANGE_DIR)
+      || ((dir == DIRECTION_UP || dir == DIRECTION_DOWN) && offset.y <= OFFSET_ALLOWS_CHANGE_DIR)) {
     return true;
   }
   return false;
@@ -93,12 +116,13 @@ struct Entity *create_entity(enum EntityType type, struct fVec2 tile_pos, enum D
 }
 
 struct Entity *create_ghost(struct fVec2 tile_pos, enum Direction dir, enum GhostType type, enum TileType base_tiles[4], GhostTargetTile get_target,
-                            struct Vec2 scatter_target, int dots_limit) {
+                            struct Vec2 scatter_target, int dots_limit_1, int dots_limit_2) {
   struct Entity *ghost = create_entity(ENTITY_GHOST, tile_pos, dir, base_tiles, 2);
   if (!ghost) return NULL;
   ghost->as.ghost.type = type;
   ghost->as.ghost.get_target_tile = get_target;
   ghost->as.ghost.scatter_target_tile = scatter_target;
-  ghost->as.ghost.dots_to_leave_home = dots_limit;
+  ghost->as.ghost.dots_to_leave_home_1 = dots_limit_1;
+  ghost->as.ghost.dots_to_leave_home_2 = dots_limit_2;
   return ghost;
 }

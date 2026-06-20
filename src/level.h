@@ -5,7 +5,7 @@
 
 #include "types.h"
 
-void load_level(struct Level *level);
+void load_level(struct State *state, bool is_update_map);
 void iterate_level(struct State *state);
 
 #endif

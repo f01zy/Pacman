@@ -6,6 +6,8 @@
 #include "defines.h"
 #include "events.h"
 #include "ghost.h"
+#include "level.h"
+#include "pacman.h"
 #include "position.h"
 #include "types.h"
 #include "utility.h"
@@ -22,13 +24,17 @@ void check_level_phase(struct State *state) {
   }
 }
 
-void check_game_over(struct GameContext *game) {
+void check_pacman_die(struct GameContext *game) {
   struct Entity *pacman = get_pacman(game);
   struct Vec2 pacman_pos = get_tile_from_pos(pacman->pos);
   for (int i = 0; i < game->entities.len; i++) {
     struct Entity *ghost = game->entities.buf[i];
     struct Vec2 ghost_pos = get_tile_from_pos(ghost->pos);
-    if (ghost->type == ENTITY_GHOST && !memcmp(&pacman_pos, &ghost_pos, sizeof(pacman_pos))) game->state = GAME_STATE_PACMAN_DIE;
+    if (ghost->type == ENTITY_GHOST && !memcmp(&pacman_pos, &ghost_pos, sizeof(pacman_pos))) {
+      handle_pacman_die(pacman);
+      game->level.is_pacman_died = true;
+      game->state = GAME_STATE_PACMAN_DIE;
+    }
   }
 }
 
@@ -44,27 +50,32 @@ void check_game_ready(struct State *state) {
   }
 }
 
-void check_level_finished(struct GameContext *game) {
-  if (game->level.dots.collected == game->level.dots.total) game->state = GAME_STATE_LEVEL_COMPLETE;
+void check_level_finished(struct State *state) {
+  if (state->game->level.dots.collected == state->game->level.dots.total) {
+    load_level(state, true);
+    state->game->level.number++;
+  }
 }
 
 void check_ghosts_home(struct GameContext *game) {
   for (int i = 0; i < game->entities.len; i++) {
     struct Entity *entity = game->entities.buf[i];
-    if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_HOME && game->level.dots.collected >= entity->as.ghost.dots_to_leave_home)
+    int dots_limit = get_dots_limit(game, entity);
+    if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_HOME && game->level.dots.collected >= dots_limit) {
       entity->as.ghost.state = GHOST_STATE_EXITING;
+    }
   }
 }
 
 void check_last_dot_timer(struct State *state) {
-  float deltatime = get_deltatime(state->app->timers.last_dot);
   if (get_deltatime(state->app->timers.last_dot) >= GHOST_INACTIVITY_TIMER) {
     struct Entity *ghost = NULL;
     int dots = INT_MAX;
     for (int i = 0; i < state->game->entities.len; i++) {
       struct Entity *curr = state->game->entities.buf[i];
-      if (curr->type == ENTITY_GHOST && curr->as.ghost.state == GHOST_STATE_HOME && curr->as.ghost.dots_to_leave_home < dots) {
-        dots = curr->as.ghost.dots_to_leave_home;
+      int dots_limit = get_dots_limit(state->game, curr);
+      if (curr->type == ENTITY_GHOST && curr->as.ghost.state == GHOST_STATE_HOME && dots_limit < dots) {
+        dots = dots_limit;
         ghost = curr;
       }
     }
@@ -75,10 +86,27 @@ void check_last_dot_timer(struct State *state) {
   }
 }
 
+void check_pacman_die_animation_end(struct State *state) {
+  struct Entity *pacman = get_pacman(state->game);
+  if (state->game->state == GAME_STATE_PACMAN_DIE && pacman->texture.curr == PACMAN_DIE_TILES - 1) {
+    state->game->lives--;
+    if (!state->game->lives) {
+      state->game->state = GAME_STATE_GAME_OVER;
+      state->game->stats.is_changed = true;
+      return;
+    }
+    load_level(state, false);
+  }
+}
+
 void iterate_events(struct State *state) {
-  check_game_over(state->game);
-  check_level_finished(state->game);
   check_ghosts_home(state->game);
+  if (state->game->state != GAME_STATE_LEVEL_COMPLETE) check_level_finished(state);
+  if (state->game->state != GAME_STATE_PACMAN_DIE) {
+    check_pacman_die(state->game);
+  } else {
+    check_pacman_die_animation_end(state);
+  }
   if (state->game->state == GAME_STATE_READY) {
     check_game_ready(state);
   } else {

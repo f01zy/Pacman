@@ -13,3 +13,4 @@ AlignConsecutiveMacros:
 AllowShortIfStatementsOnASingleLine: Always
 AllowShortBlocksOnASingleLine: Always
 AllowShortFunctionsOnASingleLine: All
+BreakBeforeBinaryOperators: All
