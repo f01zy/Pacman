@@ -52,6 +52,14 @@ enum TileType {
   TILE_INKY_UP_2,
   TILE_INKY_DOWN_1,
   TILE_INKY_DOWN_2,
+  TILE_CLYDE_RIGHT_1,
+  TILE_CLYDE_RIGHT_2,
+  TILE_CLYDE_LEFT_1,
+  TILE_CLYDE_LEFT_2,
+  TILE_CLYDE_UP_1,
+  TILE_CLYDE_UP_2,
+  TILE_CLYDE_DOWN_1,
+  TILE_CLYDE_DOWN_2,
 };
 
 enum Direction {
@@ -82,6 +90,7 @@ enum GhostType {
   GHOST_TYPE_BLINKY,
   GHOST_TYPE_PINKY,
   GHOST_TYPE_INKY,
+  GHOST_TYPE_CLYDE,
 };
 
 enum PhaseType {
@@ -193,12 +202,9 @@ struct AppContext {
     float program_start;
     float game_start;
     float phase_start;
+    float last_dot;
+    float last_frame;
   } timers;
-
-  struct {
-    float prev;
-    float delta;
-  } time;
 };
 
 struct GameContext {

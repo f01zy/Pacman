@@ -2,11 +2,13 @@
 #include <float.h>
 #include <math.h>
 
+#include "defines.h"
 #include "ghost.h"
 #include "position.h"
 #include "types.h"
 #include "utility.h"
 
+// TODO: добавить проверку на тип призрака
 struct Vec2 get_blinky_target_tile(struct GameContext *game, struct Entity *ghost) {
   struct Entity *pacman = get_pacman(game);
   return get_tile_from_pos(pacman->pos);
@@ -28,6 +30,15 @@ struct Vec2 get_inky_target_tile(struct GameContext *game, struct Entity *ghost)
     offset_pos.x + dx,
     offset_pos.y + dy,
   };
+}
+
+struct Vec2 get_clyde_target_tile(struct GameContext *game, struct Entity *ghost) {
+  struct Entity *pacman = get_pacman(game);
+  struct Vec2 pacman_pos = get_tile_from_pos(pacman->pos);
+  struct Vec2 ghost_pos = get_tile_from_pos(ghost->pos);
+  float distance = get_distance_between_two_tiles(pacman_pos, ghost_pos);
+  if (distance > CLYDE_RADIUS) return pacman_pos;
+  return ghost->as.ghost.scatter_target_tile;
 }
 
 enum Direction get_ghost_desired_direction(struct GameContext *game, struct Entity *ghost) {
@@ -53,9 +64,10 @@ enum Direction get_ghost_desired_direction(struct GameContext *game, struct Enti
 
   float distance[4];
   int dir_priority[4] = {0, 2, 3, 1};
+  enum Direction directions[4] = {DIRECTION_RIGHT, DIRECTION_LEFT, DIRECTION_UP, DIRECTION_DOWN};
   for (int i = 0; i < 4; i++) {
     distance[i] = FLT_MAX;
-    enum Direction curr_dir = DIRECTION_RIGHT + i;
+    enum Direction curr_dir = directions[i];
     if (curr_dir == get_opposite_direction(ghost->curr_dir)) continue;
     struct Vec2 curr_trans_dir = get_vec_dir(curr_dir);
     struct Vec2 checked_tile_pos = {

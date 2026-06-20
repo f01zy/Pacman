@@ -1,4 +1,5 @@
 #include "utility.h"
+#include "SDL3/SDL_timer.h"
 #include "defines.h"
 #include "position.h"
 #include "types.h"
@@ -60,6 +61,8 @@ float get_entity_speed(const struct Entity *entity, const struct Level *level) {
   }
   return scaled_speed;
 }
+
+float get_deltatime(float prev) { return (SDL_GetTicks() - prev) / 1000.0f; }
 
 bool is_tile_center(struct fVec2 pos, enum Direction dir) {
   struct fVec2 offset = get_tile_center_offset(pos);

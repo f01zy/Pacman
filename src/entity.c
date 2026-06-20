@@ -112,7 +112,7 @@ void handle_entity_center_tile(struct State *state, struct Entity *entity) {
   if (entity->type == ENTITY_GHOST) {
     entity->desired_dir = get_ghost_desired_direction(state->game, entity);
   } else if (entity->type == ENTITY_PACMAN) {
-    handle_pacman_tile_interaction(state->game);
+    handle_pacman_tile_interaction(state);
   }
 }
 
@@ -139,13 +139,20 @@ void initialize_entities(struct GameContext *game) {
   enum TileType inky_tiles[4] = {TILE_INKY_RIGHT_1, TILE_INKY_LEFT_1, TILE_INKY_UP_1, TILE_INKY_DOWN_1};
   struct Entity *inky = create_ghost(inky_pos, DIRECTION_UP, GHOST_TYPE_INKY, inky_tiles, get_inky_target_tile, inky_scatter_target, 40);
 
+  // Clyde
+  struct fVec2 clyde_pos = {12.0f, 14.5f};
+  struct Vec2 clyde_scatter_target = {0, LEVEL_HEIGHT};
+  enum TileType clyde_tiles[4] = {TILE_CLYDE_RIGHT_1, TILE_CLYDE_LEFT_1, TILE_CLYDE_UP_1, TILE_CLYDE_DOWN_1};
+  struct Entity *clyde = create_ghost(clyde_pos, DIRECTION_UP, GHOST_TYPE_CLYDE, clyde_tiles, get_clyde_target_tile, clyde_scatter_target, 60);
+
   // Buffer
-  game->entities.len = 4;
+  game->entities.len = 5;
   struct Entity **entities = (struct Entity **)SDL_malloc(game->entities.len * sizeof(struct Entity *));
   entities[0] = pacman;
   entities[1] = blinky;
   entities[2] = pinky;
   entities[3] = inky;
+  entities[4] = clyde;
   game->entities.buf = entities;
 }
 
@@ -157,9 +164,9 @@ void iterate_entity(struct State *state, struct Entity *entity) {
   if (state->game->state != GAME_STATE_READY) {
     if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_HOME) return;
     if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_EXITING) {
-      move_ghost_out_home(state->game, entity, state->app->time.delta);
+      move_ghost_out_home(state->game, entity, get_deltatime(state->app->timers.last_frame));
     } else {
-      move_entity(entity, &state->game->level, state->app->time.delta);
+      move_entity(entity, &state->game->level, get_deltatime(state->app->timers.last_frame));
       if (is_tile_center(entity->pos, entity->curr_dir)) handle_entity_center_tile(state, entity);
     }
   }

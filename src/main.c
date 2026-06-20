@@ -13,6 +13,7 @@
 #include "input.h"
 #include "level.h"
 #include "types.h"
+#include "utility.h"
 
 void load_resources(struct AppContext *app) {
   SDL_Texture *tileset = IMG_LoadTexture(app->renderer, TILESET_PATH);
@@ -23,7 +24,6 @@ void load_resources(struct AppContext *app) {
 }
 
 void initialize_state(struct State *state) {
-  state->app->timers.program_start = SDL_GetTicks();
   state->game->state = GAME_STATE_READY;
   state->game->stats.is_changed = true;
   initialize_entities(state->game);
@@ -73,12 +73,9 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     return SDL_APP_SUCCESS;
   }
 
-  float now = SDL_GetTicks();
   static const float need = 1.0f / FPS;
-  float deltatime = (now - state->app->time.prev) / 1000.0f;
-  if (deltatime < need) return SDL_APP_CONTINUE;
-  state->app->time.prev = now;
-  state->app->time.delta = deltatime;
+  float deltatime = get_deltatime(state->app->timers.last_frame);
+  if (get_deltatime(state->app->timers.last_frame) < need) return SDL_APP_CONTINUE;
 
   iterate_events(state);
   iterate_level(state);
@@ -87,6 +84,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     iterate_entity(state, state->game->entities.buf[i]);
   }
 
+  state->app->timers.last_frame = SDL_GetTicks();
   SDL_RenderPresent(state->app->renderer);
   return SDL_APP_CONTINUE;
 }

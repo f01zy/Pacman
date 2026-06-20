@@ -1,24 +1,27 @@
-#include "pacman.h"
+#include <SDL3/SDL.h>
+
 #include "defines.h"
+#include "pacman.h"
 #include "position.h"
 #include "types.h"
 #include "utility.h"
 
-void handle_pacman_tile_interaction(struct GameContext *game) {
-  struct Entity *pacman = get_pacman(game);
+void handle_pacman_tile_interaction(struct State *state) {
+  struct Entity *pacman = get_pacman(state->game);
   struct Vec2 tile_pos = get_tile_from_pos(pacman->pos);
-  enum TileType tile_type = game->level.buf[tile_pos.y][tile_pos.x];
+  enum TileType tile_type = state->game->level.buf[tile_pos.y][tile_pos.x];
   switch (tile_type) {
   case TILE_DOT:
   case TILE_ENERGIZER:
     if (tile_type == TILE_DOT) {
-      game->stats.score += DOT_SCORE;
-      game->level.dots.collected++;
+      state->app->timers.last_dot = SDL_GetTicks();
+      state->game->stats.score += DOT_SCORE;
+      state->game->level.dots.collected++;
     } else {
-      game->stats.score += ENERGIZER_SCORE;
+      state->game->stats.score += ENERGIZER_SCORE;
     }
-    game->stats.is_changed = true;
-    game->level.buf[tile_pos.y][tile_pos.x] = TILE_EMPTY;
+    state->game->stats.is_changed = true;
+    state->game->level.buf[tile_pos.y][tile_pos.x] = TILE_EMPTY;
     break;
   default:
     break;

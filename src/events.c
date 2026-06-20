@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -39,6 +40,7 @@ void check_game_ready(struct State *state) {
     state->game->stats.is_changed = true;
     state->app->timers.game_start = now;
     state->app->timers.phase_start = now;
+    state->app->timers.last_dot = now;
   }
 }
 
@@ -54,13 +56,33 @@ void check_ghosts_home(struct GameContext *game) {
   }
 }
 
+void check_last_dot_timer(struct State *state) {
+  float deltatime = get_deltatime(state->app->timers.last_dot);
+  if (get_deltatime(state->app->timers.last_dot) >= GHOST_INACTIVITY_TIMER) {
+    struct Entity *ghost = NULL;
+    int dots = INT_MAX;
+    for (int i = 0; i < state->game->entities.len; i++) {
+      struct Entity *curr = state->game->entities.buf[i];
+      if (curr->type == ENTITY_GHOST && curr->as.ghost.state == GHOST_STATE_HOME && curr->as.ghost.dots_to_leave_home < dots) {
+        dots = curr->as.ghost.dots_to_leave_home;
+        ghost = curr;
+      }
+    }
+    if (ghost) {
+      ghost->as.ghost.state = GHOST_STATE_EXITING;
+      state->app->timers.last_dot = SDL_GetTicks();
+    }
+  }
+}
+
 void iterate_events(struct State *state) {
+  check_game_over(state->game);
+  check_level_finished(state->game);
+  check_ghosts_home(state->game);
   if (state->game->state == GAME_STATE_READY) {
     check_game_ready(state);
   } else {
     check_level_phase(state);
+    check_last_dot_timer(state);
   }
-  check_game_over(state->game);
-  check_level_finished(state->game);
-  check_ghosts_home(state->game);
 }

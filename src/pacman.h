@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void handle_pacman_tile_interaction(struct GameContext *game);
+void handle_pacman_tile_interaction(struct State *state);
 
 #endif
