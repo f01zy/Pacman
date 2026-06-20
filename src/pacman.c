@@ -14,12 +14,12 @@ void handle_pacman_tile_interaction(struct State *state) {
   case TILE_DOT:
   case TILE_ENERGIZER:
     if (tile_type == TILE_DOT) {
-      state->app->timers.last_dot = SDL_GetTicks();
       state->game->stats.score += DOT_SCORE;
-      state->game->level.dots.collected++;
     } else {
       state->game->stats.score += ENERGIZER_SCORE;
     }
+    state->app->timers.last_dot = SDL_GetTicks();
+    state->game->level.dots.collected++;
     state->game->stats.is_changed = true;
     state->game->level.buf[tile_pos.y][tile_pos.x] = TILE_EMPTY;
     break;

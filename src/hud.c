@@ -30,12 +30,7 @@ void render_hud(struct GameContext *game, const struct Resources *resources, str
       SCALED_TILE_SIZE * tile.size.x,
       SCALED_TILE_SIZE * tile.size.y,
     };
-    SDL_FRect srcrect = {
-      TILE_SIZE * tile.offset.x,
-      TILE_SIZE * tile.offset.y,
-      TILE_SIZE * tile.size.x,
-      TILE_SIZE * tile.size.y,
-    };
+    SDL_FRect srcrect = get_tile_src_rect(&tile);
     SDL_RenderTexture(renderer, resources->tileset, &srcrect, &dstrect);
   }
 

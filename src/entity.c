@@ -33,12 +33,7 @@ void render_entity(const struct Entity *entity, const struct Resources *resource
     SCALED_TILE_SIZE * tile.size.x,
     SCALED_TILE_SIZE * tile.size.y,
   };
-  SDL_FRect srcrect = {
-    TILE_SIZE * tile.offset.x,
-    TILE_SIZE * tile.offset.y,
-    TILE_SIZE * tile.size.x,
-    TILE_SIZE * tile.size.y,
-  };
+  SDL_FRect srcrect = get_tile_src_rect(&tile);
   SDL_RenderTexture(renderer, resources->tileset, &srcrect, &dstrect);
 }
 
@@ -91,10 +86,10 @@ void change_entity_animation_tile(struct Entity *entity) { entity->texture.curr 
 void check_entity_animation(struct Entity *entity) {
   static const float need = 1.0f / ENTITY_ANIMATION_SPEED;
   float now = SDL_GetTicks();
-  float deltatime = (now - entity->delta) / 1000;
+  float deltatime = (now - entity->texture.delta) / 1000;
   if (deltatime >= need) {
     change_entity_animation_tile(entity);
-    entity->delta = now;
+    entity->texture.delta = now;
   }
 }
 

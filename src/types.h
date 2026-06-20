@@ -113,7 +113,6 @@ enum GameState {
   GAME_STATE_READY,
   GAME_STATE_PLAYING,
   GAME_STATE_PAUSE,
-  GAME_STATE_LEVEL_COMPLETE,
   GAME_STATE_PACMAN_DIE,
   GAME_STATE_GAME_OVER,
 };
@@ -162,12 +161,12 @@ struct Entity {
   enum Direction curr_dir;
   enum Direction desired_dir;
   bool is_die;
-  float delta;
 
   struct {
     enum TileType tiles[4];
     size_t len;
     size_t curr;
+    float delta;
   } texture;
 
   union {

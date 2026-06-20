@@ -6,8 +6,10 @@
 #include "levels.h"
 #include "tiles.h"
 #include "types.h"
+#include "utility.h"
 
 void render_level(const struct Level *level, const struct Resources *resources, SDL_Renderer *renderer) {
+  // Clear prev frame
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_FRect level_rect = {
     0,
@@ -16,6 +18,8 @@ void render_level(const struct Level *level, const struct Resources *resources, 
     SCALED_TILE_SIZE * LEVEL_HEIGHT,
   };
   SDL_RenderFillRect(renderer, &level_rect);
+
+  // Render map
   int w = SCALED_TILE_SIZE * LEVEL_WIDTH;
   int h = SCALED_TILE_SIZE * LEVEL_HEIGHT;
   SDL_FRect dstmap = {0, 0, w, h};
@@ -26,6 +30,8 @@ void render_level(const struct Level *level, const struct Resources *resources, 
     TILE_SIZE * LEVEL_HEIGHT,
   };
   SDL_RenderTexture(renderer, resources->tileset, &srcmap, &dstmap);
+
+  // Render objects
   for (int i = 0; i < LEVEL_HEIGHT; i++) {
     for (int j = 0; j < LEVEL_WIDTH; j++) {
       enum TileType type = level->buf[i][j];
@@ -45,12 +51,7 @@ void render_level(const struct Level *level, const struct Resources *resources, 
         SCALED_TILE_SIZE * tile.size.x,
         SCALED_TILE_SIZE * tile.size.y,
       };
-      SDL_FRect srcrect = {
-        TILE_SIZE * tile.offset.x,
-        TILE_SIZE * tile.offset.y,
-        TILE_SIZE * tile.size.x,
-        TILE_SIZE * tile.size.y,
-      };
+      SDL_FRect srcrect = get_tile_src_rect(&tile);
       SDL_RenderTexture(renderer, resources->tileset, &srcrect, &dstrect);
     }
   }

@@ -1,13 +1,23 @@
-#include "utility.h"
-#include "SDL3/SDL_timer.h"
+#include <SDL3/SDL.h>
+#include <stdlib.h>
+
 #include "defines.h"
 #include "position.h"
 #include "tiles.h"
 #include "types.h"
-#include <stdlib.h>
+#include "utility.h"
 
-int get_dots_limit(struct GameContext *game, struct Entity *ghost) {
+int get_dots_limit(struct GameContext *game, const struct Entity *ghost) {
   return game->level.is_pacman_died ? ghost->as.ghost.dots_to_leave_home_2 : ghost->as.ghost.dots_to_leave_home_1;
+}
+
+struct SDL_FRect get_tile_src_rect(const struct Tile *tile) {
+  return (struct SDL_FRect){
+    TILE_SIZE * tile->offset.x,
+    TILE_SIZE * tile->offset.y,
+    TILE_SIZE * tile->size.x,
+    TILE_SIZE * tile->size.y,
+  };
 }
 
 struct Tile get_tile(enum TileType type) {
@@ -21,7 +31,7 @@ struct Tile get_tile(enum TileType type) {
     }
   }
   if (!is_found) {
-    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Entity tile not found\n");
+    SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, "Tile tile not found: %d\n", type);
     SDL_Quit();
     exit(1);
   }
