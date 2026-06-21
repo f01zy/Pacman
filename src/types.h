@@ -71,6 +71,8 @@ enum TileType {
   TILE_CLYDE_UP_2,
   TILE_CLYDE_DOWN_1,
   TILE_CLYDE_DOWN_2,
+  TILE_GHOST_FRIGHTENED_1,
+  TILE_GHOST_FRIGHTENED_2,
 };
 
 enum Direction {
@@ -104,15 +106,11 @@ enum GhostType {
   GHOST_TYPE_CLYDE,
 };
 
-enum PhaseType {
-  PHASE_SCATTER,
-  PHASE_CHASE,
-};
-
 enum GameState {
   GAME_STATE_READY,
   GAME_STATE_PLAYING,
   GAME_STATE_PAUSE,
+  GAME_STATE_ENERGIZER,
   GAME_STATE_PACMAN_DIE,
   GAME_STATE_GAME_OVER,
 };
@@ -160,13 +158,12 @@ struct Entity {
   struct fVec2 pos;
   enum Direction curr_dir;
   enum Direction desired_dir;
-  bool is_die;
 
   struct {
     enum TileType tiles[4];
+    float last_change;
     size_t len;
     size_t curr;
-    float delta;
   } texture;
 
   union {
@@ -218,6 +215,7 @@ struct AppContext {
     float phase_start;
     float last_dot;
     float last_frame;
+    float energizer;
   } timers;
 };
 

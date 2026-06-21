@@ -1,10 +1,17 @@
 #include <SDL3/SDL.h>
 
 #include "defines.h"
+#include "ghost.h"
 #include "pacman.h"
 #include "position.h"
 #include "types.h"
 #include "utility.h"
+
+void handle_energizer(struct State *state) {
+  state->game->state = GAME_STATE_ENERGIZER;
+  state->app->timers.energizer = SDL_GetTicks();
+  set_ghosts_state(state->game, GHOST_STATE_FRIGHTENED);
+}
 
 void handle_pacman_tile_interaction(struct State *state) {
   struct Entity *pacman = get_pacman(state->game);
@@ -17,6 +24,7 @@ void handle_pacman_tile_interaction(struct State *state) {
       state->game->stats.score += DOT_SCORE;
     } else {
       state->game->stats.score += ENERGIZER_SCORE;
+      handle_energizer(state);
     }
     state->app->timers.last_dot = SDL_GetTicks();
     state->game->level.dots.collected++;
@@ -29,7 +37,6 @@ void handle_pacman_tile_interaction(struct State *state) {
 }
 
 void handle_pacman_die(struct Entity *pacman) {
-  pacman->is_die = true;
   pacman->texture.len = 11;
   pacman->texture.curr = 0;
 }

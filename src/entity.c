@@ -18,10 +18,12 @@ void align_entity_y(struct Entity *entity) {
   entity->pos.y = (tile_pos.y * SCALED_TILE_SIZE) + (SCALED_TILE_SIZE / 2.0f);
 }
 
-void render_entity(const struct Entity *entity, const struct Resources *resources, SDL_Renderer *renderer) {
+void render_entity(const struct Entity *entity, const enum GameState state, const struct Resources *resources, SDL_Renderer *renderer) {
   enum TileType tile_type;
-  if (entity->type == ENTITY_PACMAN && entity->is_die) {
+  if (entity->type == ENTITY_PACMAN && state == GAME_STATE_PACMAN_DIE) {
     tile_type = TILE_PACMAN_DIE_1;
+  } else if (entity->type == ENTITY_GHOST && state == GAME_STATE_ENERGIZER) {
+    tile_type = TILE_GHOST_FRIGHTENED_1;
   } else {
     tile_type = entity->texture.tiles[entity->curr_dir];
   }
@@ -85,11 +87,9 @@ void change_entity_animation_tile(struct Entity *entity) { entity->texture.curr 
 
 void check_entity_animation(struct Entity *entity) {
   static const float need = 1.0f / ENTITY_ANIMATION_SPEED;
-  float now = SDL_GetTicks();
-  float deltatime = (now - entity->texture.delta) / 1000;
-  if (deltatime >= need) {
+  if (get_deltatime(entity->texture.last_change) >= need) {
     change_entity_animation_tile(entity);
-    entity->texture.delta = now;
+    entity->texture.last_change = SDL_GetTicks();
   }
 }
 
@@ -152,14 +152,16 @@ void free_entities(struct GameContext *game) {
 }
 
 void iterate_entity(struct State *state, struct Entity *entity) {
+  struct AppContext *app = state->app;
+  struct GameContext *game = state->game;
   check_entity_animation(entity);
-  if (state->game->state != GAME_STATE_PACMAN_DIE || entity->type == ENTITY_PACMAN) render_entity(entity, &state->app->resources, state->app->renderer);
-  if (state->game->state == GAME_STATE_PACMAN_DIE || state->game->state == GAME_STATE_READY) return;
+  if (game->state != GAME_STATE_PACMAN_DIE || entity->type == ENTITY_PACMAN) render_entity(entity, game->state, &app->resources, app->renderer);
+  if (game->state == GAME_STATE_PACMAN_DIE || game->state == GAME_STATE_READY) return;
   if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_HOME) return;
   if (entity->type == ENTITY_GHOST && entity->as.ghost.state == GHOST_STATE_EXITING) {
-    move_ghost_out_home(state->game, entity, get_deltatime(state->app->timers.last_frame));
+    move_ghost_out_home(game, entity, get_deltatime(app->timers.last_frame));
     return;
   }
-  move_entity(entity, &state->game->level, get_deltatime(state->app->timers.last_frame));
+  move_entity(entity, &game->level, get_deltatime(app->timers.last_frame));
   if (is_tile_center(entity->pos, entity->curr_dir)) handle_entity_center_tile(state, entity);
 }

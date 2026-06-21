@@ -61,6 +61,8 @@ static const struct Tile tiles[] = {
   {TILE_CLYDE_UP_2, {67, 14}, {2, 2}},
   {TILE_CLYDE_DOWN_1, {69, 14}, {2, 2}},
   {TILE_CLYDE_DOWN_2, {71, 14}, {2, 2}},
+  {TILE_GHOST_FRIGHTENED_1, {73, 8}, {2, 2}},
+  {TILE_GHOST_FRIGHTENED_2, {75, 8}, {2, 2}},
 };
 
 #endif

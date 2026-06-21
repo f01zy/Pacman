@@ -88,6 +88,8 @@ float get_entity_speed(const struct Entity *entity, const struct Level *level) {
   if (entity->type == ENTITY_GHOST) {
     if (tile_type == TILE_TUNEL) {
       return scaled_speed * 0.40f;
+    } else if (entity->as.ghost.state == GHOST_STATE_FRIGHTENED) {
+      return scaled_speed * 0.50f;
     } else {
       return scaled_speed * 0.75f;
     }

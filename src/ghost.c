@@ -8,7 +8,6 @@
 #include "types.h"
 #include "utility.h"
 
-// TODO: добавить проверку на тип призрака
 struct Vec2 get_blinky_target_tile(struct GameContext *game, struct Entity *ghost) {
   struct Entity *pacman = get_pacman(game);
   return get_tile_from_pos(pacman->pos);

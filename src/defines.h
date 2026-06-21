@@ -21,6 +21,7 @@
 #define DOTS_COUNT               244
 #define DOT_SCORE                10
 #define ENERGIZER_SCORE          50
+#define ENERGIZER_TIME           6.0f
 #define OFFSET_ALLOWS_CHANGE_DIR 3
 #define CLYDE_RADIUS             8.0f
 #define GHOST_HOME_TARGET_X      13

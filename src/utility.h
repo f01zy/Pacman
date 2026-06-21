@@ -1,8 +1,8 @@
 #ifndef UTILITY_INCLUDED
 #define UTILITY_INCLUDED
 
-#include "SDL3/SDL_rect.h"
 #include "types.h"
+#include <SDL3/SDL.h>
 
 int get_dots_limit(struct GameContext *game, const struct Entity *ghost);
 float get_deltatime(float prev);

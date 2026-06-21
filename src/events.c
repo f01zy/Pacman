@@ -95,6 +95,13 @@ void check_last_dot_timer(struct State *state) {
   }
 }
 
+void check_energizer_timer(struct State *state) {
+  if (get_deltatime(state->app->timers.energizer) >= ENERGIZER_TIME) {
+    state->game->state = GAME_STATE_PLAYING;
+    set_ghosts_state(state->game, get_ghosts_state(state->game->level.phases.curr));
+  }
+}
+
 void iterate_events(struct State *state) {
   check_ghosts_home(state->game);
   check_level_finished(state);
@@ -105,6 +112,8 @@ void iterate_events(struct State *state) {
   }
   if (state->game->state == GAME_STATE_READY) {
     check_game_ready(state);
+  } else if (state->game->state == GAME_STATE_ENERGIZER) {
+    check_energizer_timer(state);
   } else {
     check_level_phase(state);
     check_last_dot_timer(state);
